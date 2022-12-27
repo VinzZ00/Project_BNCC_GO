@@ -3,6 +3,7 @@ package controller
 import (
 	"Project_BNCC_GO/model"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/png"
@@ -72,10 +73,20 @@ func CreateMemory(c echo.Context) error {
 		Picture:      pictures,
 	}
 	result := db.Create(&memory)
+	res := struct {
+		Status  int
+		Message string
+	}{
+		Status:  202,
+		Message: "Memorry has successfully created",
+	}
 
 	fmt.Println(result)
 
-	return c.JSON(http.StatusOK, "Insert Successful")
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
+	c.Response().WriteHeader(http.StatusOK)
+
+	return json.NewEncoder(c.Response()).Encode(res)
 }
 
 func init() {
