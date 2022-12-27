@@ -3,6 +3,7 @@ package controller
 import (
 	"Project_BNCC_GO/model"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -46,7 +47,7 @@ func SignUP(c echo.Context) error {
 	return c.JSON(http.StatusOK, struct {
 		message string
 	}{
-		message: "User with ID " + string(signupUser.Userid) + "is Created",
+		message: "User with ID " + strconv.FormatUint(uint64(signupUser.Userid), 10) + "is Created",
 	})
 }
 
