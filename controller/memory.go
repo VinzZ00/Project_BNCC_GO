@@ -18,7 +18,7 @@ import (
 var db *gorm.DB
 
 func CreateMemory(c echo.Context) error {
-
+	// Struct untuk ambil data web
 	webData := struct {
 		Memoryid     uint        `json:"memoryid,omitempty"`
 		DateAdded    time.Time   `json:"dateAdded"`
@@ -29,13 +29,11 @@ func CreateMemory(c echo.Context) error {
 		Path         []string    `json:"PicturePath"`
 		Tag          []model.Tag `json:"tags"`
 	}{}
-
 	if err := c.Bind(&webData); err != nil {
 		panic("Error di binding data")
 	}
 
 	picturesbyte := [][]byte{}
-
 	for _, value := range webData.Path {
 		imagefile, err := os.Open(value)
 		if err != nil {
@@ -44,25 +42,21 @@ func CreateMemory(c echo.Context) error {
 		imageData, _, err := image.Decode(imagefile)
 		buff := new(bytes.Buffer)
 		err = png.Encode(buff, imageData)
-
 		if err != nil {
 			panic(err)
 		}
-
 		picturesbyte = append(picturesbyte, buff.Bytes())
 	}
 
 	pictures := []model.Picture{}
-
 	for _, value := range picturesbyte {
 		pic := model.Picture{
 			Picture: value,
 		}
-
 		pictures = append(pictures, pic)
-
 	}
 
+	// Create memory model dan insert memory
 	memory := model.Memory{
 		Memoryid:     webData.Memoryid,
 		DateAdded:    webData.DateAdded,
@@ -73,6 +67,10 @@ func CreateMemory(c echo.Context) error {
 		Picture:      pictures,
 	}
 	result := db.Create(&memory)
+	fmt.Println(result)
+
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
+	c.Response().WriteHeader(http.StatusOK)
 	res := struct {
 		Status  int
 		Message string
@@ -80,12 +78,6 @@ func CreateMemory(c echo.Context) error {
 		Status:  202,
 		Message: "Memorry has successfully created",
 	}
-
-	fmt.Println(result)
-
-	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
-	c.Response().WriteHeader(http.StatusOK)
-
 	return json.NewEncoder(c.Response()).Encode(res)
 }
 

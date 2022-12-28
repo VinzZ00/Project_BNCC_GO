@@ -17,6 +17,7 @@ func main() {
 	})
 
 	e.POST("/login", controller.Login)
+	e.POST("/SignUp", controller.SignUP)
 
 	e.POST("/createMemo", controller.CreateMemory)
 
