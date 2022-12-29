@@ -2,7 +2,7 @@ package config
 
 import "github.com/golang-jwt/jwt/v4"
 
-var JWT_KEY []byte = []byte("SecretKey")
+var JWT_KEY []byte = []byte("BrownMinumKopi")
 
 type JwtClaim struct {
 	UserId uint
