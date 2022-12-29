@@ -60,7 +60,7 @@ func CreateMemory(c echo.Context) error {
 	memory := model.Memory{
 		Memoryid:     webData.Memoryid,
 		DateAdded:    webData.DateAdded,
-		DateModified: webData.DateModified,
+		DateModified: time.Now(),
 		Desc:         webData.Desc,
 		UserId:       webData.UserId,
 		Tag:          webData.Tag,
