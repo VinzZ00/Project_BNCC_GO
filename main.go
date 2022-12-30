@@ -4,62 +4,46 @@ import (
 	"Project_BNCC_GO/config"
 	"Project_BNCC_GO/controller"
 	"fmt"
-	"log"
 	"net/http"
-
-	"Project_BNCC_GO/model/model_revision"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-
-	db, err := model_revision.GetDB()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println(db)
-
 	e := echo.New()
 
+	e.Use(middleware.RemoveTrailingSlash())
 	e.GET("/", func(c echo.Context) error {
 		fmt.Println("Hello")
 		return c.String(301, "Hello Welcome to this PAGE")
 	})
 
-	e.POST("/login", controller.Login)
-	e.POST("/SignUp", controller.SignUP)
+	authGroup := e.Group("/auth")
+	authGroup.POST("/login", controller.Login)
+	authGroup.POST("/register", controller.SignUP)
 
-	g := e.Group("/logged")
-	g.Use(echojwt.WithConfig(echojwt.Config{
-
-		SigningKey: []byte(config.JWT_KEY),
-
+	memoryGroup := e.Group("/memories")
+	memoryGroup.Use(echojwt.WithConfig(echojwt.Config{
+		SigningKey:  []byte(config.JWT_KEY),
 		TokenLookup: "cookie:Token",
-
 		ErrorHandler: func(c echo.Context, err error) error {
-			c.JSON(http.StatusUnauthorized, struct {
-				Message string
-			}{
-				Message: "Status Un Authorized",
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"message": "You are not authorized",
 			})
-			return nil
 		},
 	}))
-	g.GET("/hellowFromProtectedAPI", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, struct {
-			Message string
-		}{
-			Message: "hellowFromProtectedAPI, Ini Harus dalam kondisi sudah signed In",
+	memoryGroup.GET("/test", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{
+			"message": "hellowFromProtectedAPI, Ini Harus dalam kondisi sudah signed In",
 		})
 	})
-	g.POST("/createMemo", controller.CreateMemory)
+
+	memoryGroup.POST("", controller.CreateMemory)
+	memoryGroup.PUT("/:id", controller.UpdateMemory)
 
 	if err := e.Start(":5566"); err != nil {
 		panic(err)
 	}
-
 }

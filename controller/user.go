@@ -3,9 +3,9 @@ package controller
 import (
 	"Project_BNCC_GO/config"
 	"Project_BNCC_GO/model"
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -58,10 +58,8 @@ func Login(c echo.Context) error {
 
 	c.SetCookie(cookie)
 
-	return c.JSON(http.StatusOK, struct {
-		Message string
-	}{
-		Message: "Sucessfully Logged In",
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Successfully logged in",
 	})
 }
 
@@ -81,10 +79,15 @@ func SignUP(c echo.Context) error {
 		panic(result.Error)
 	}
 
+<<<<<<< HEAD
 	return c.JSON(http.StatusOK, struct {
 		Message string
 	}{
 		Message: "User with ID " + strconv.FormatUint(uint64(signupUser.BaseModel.Id), 10) + "is Created",
+=======
+	return c.JSON(http.StatusCreated, map[string]string{
+		"message": fmt.Sprintf("Successfully registered a new user with ID %d", signupUser.Userid),
+>>>>>>> b933109c6a496304bea0912552be2d443ab74b16
 	})
 }
 
