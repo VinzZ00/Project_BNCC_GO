@@ -11,12 +11,12 @@ func GetDB() (*gorm.DB, error) {
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{NamingStrategy: schema.NamingStrategy{
 		SingularTable: true,
-		TablePrefix:   "ms",
 	}})
 
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Memory{})
 	db.AutoMigrate(&Tag{})
 	db.AutoMigrate(&Picture{})
+	db.AutoMigrate(&MemoryTag{})
 	return db, err
 }

@@ -1,9 +1,9 @@
 package model
 
 type User struct {
-	Userid   uint   `gorm:"column:userId;primaryKey;auto_increment" json:"userId,omitempty"`
-	Username string `gorm:"column:userName" json:"userName"`
-	Email    string `gorm:"column:email;uniqueInde;" json:"email"`
-	Password string `gorm:"column:Password" json:"Password"`
-	Memory   Memory `gorm:"foreignKey:UserId;references:Userid"`
+	BaseModel BaseModel `gorm:"embedded"`
+	Username  string    `gorm:"column:userName"`
+	Email     string    `gorm:"column:email;uniqueIndex;"`
+	Password  string    `gorm:"column:Password"`
+	Memory    Memory    `gorm:"foreignKey:Userid;"`
 }

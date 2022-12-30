@@ -4,13 +4,24 @@ import (
 	"Project_BNCC_GO/config"
 	"Project_BNCC_GO/controller"
 	"fmt"
+	"log"
 	"net/http"
+
+	"Project_BNCC_GO/model/model_revision"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
+
+	db, err := model_revision.GetDB()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(db)
 
 	e := echo.New()
 

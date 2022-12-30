@@ -36,7 +36,7 @@ func Login(c echo.Context) error {
 	//Generate token
 	expTime := time.Now().Add(time.Minute * 15)
 	claims := config.JwtClaim{
-		UserId: user.Userid,
+		UserId: user.BaseModel.Id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "PROJECT_BNCC_GO",
 			ExpiresAt: jwt.NewNumericDate(expTime),
@@ -84,7 +84,7 @@ func SignUP(c echo.Context) error {
 	return c.JSON(http.StatusOK, struct {
 		Message string
 	}{
-		Message: "User with ID " + strconv.FormatUint(uint64(signupUser.Userid), 10) + "is Created",
+		Message: "User with ID " + strconv.FormatUint(uint64(signupUser.BaseModel.Id), 10) + "is Created",
 	})
 }
 

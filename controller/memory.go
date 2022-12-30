@@ -20,14 +20,13 @@ var db *gorm.DB
 func CreateMemory(c echo.Context) error {
 	// Struct untuk ambil data web
 	webData := struct {
-		Memoryid     uint        `json:"memoryid,omitempty"`
-		DateAdded    time.Time   `json:"dateAdded"`
-		DateModified time.Time   `json:"dateModified"`
-		Desc         string      `json:"MemoryDesc"`
-		UserId       uint        `json:"UserId"`
-		PictureId    uint        `json:"pictureId,omitempty"`
-		Path         []string    `json:"PicturePath"`
-		Tag          []model.Tag `json:"tags"`
+		DateAdded    time.Time         `json:"dateAdded"`
+		DateModified time.Time         `json:"dateModified"`
+		Desc         string            `json:"MemoryDesc"`
+		UserId       uint              `json:"UserId"`
+		PictureId    uint              `json:"pictureId,omitempty"`
+		Path         []string          `json:"PicturePath"`
+		Tag          []model.MemoryTag `json:"tags"`
 	}{}
 	if err := c.Bind(&webData); err != nil {
 		panic("Error di binding data")
@@ -51,20 +50,21 @@ func CreateMemory(c echo.Context) error {
 	pictures := []model.Picture{}
 	for _, value := range picturesbyte {
 		pic := model.Picture{
-			Picture: value,
+			Data: value,
 		}
 		pictures = append(pictures, pic)
 	}
 
 	// Create memory model dan insert memory
 	memory := model.Memory{
-		Memoryid:     webData.Memoryid,
-		DateAdded:    webData.DateAdded,
-		DateModified: time.Now(),
-		Desc:         webData.Desc,
-		UserId:       webData.UserId,
-		Tag:          webData.Tag,
-		Picture:      pictures,
+		BaseModel: model.BaseModel{
+			Created_at: webData.DateAdded,
+			Updated_at: time.Now(),
+		},
+		Desc:    webData.Desc,
+		Userid:  webData.UserId,
+		Tags:    webData.Tag,
+		Picture: pictures,
 	}
 	result := db.Create(&memory)
 	fmt.Println(result)

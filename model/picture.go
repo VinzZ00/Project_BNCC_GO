@@ -1,7 +1,7 @@
 package model
 
 type Picture struct {
-	PictureId uint   `gorm:"column:pictureid;PrimaryKey;auto_increment" json:"pictureId,omitempty"`
-	Picture   []byte `gorm:"column:picture;" json:"picture"`
-	MemoryId  uint   `gorm:"column:memoryid;"`
+	BaseModel BaseModel `gorm:"embedded"`
+	Data      []byte    `gorm:"column:data;"`
+	Memory_Id uint      `gorm:"column:memory_id;"`
 }
