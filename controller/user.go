@@ -79,15 +79,8 @@ func SignUP(c echo.Context) error {
 		panic(result.Error)
 	}
 
-<<<<<<< HEAD
-	return c.JSON(http.StatusOK, struct {
-		Message string
-	}{
-		Message: "User with ID " + strconv.FormatUint(uint64(signupUser.BaseModel.Id), 10) + "is Created",
-=======
 	return c.JSON(http.StatusCreated, map[string]string{
-		"message": fmt.Sprintf("Successfully registered a new user with ID %d", signupUser.Userid),
->>>>>>> b933109c6a496304bea0912552be2d443ab74b16
+		"message": fmt.Sprintf("Successfully registered a new user with ID %d", signupUser.BaseModel.Id),
 	})
 }
 

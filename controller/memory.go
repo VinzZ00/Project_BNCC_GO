@@ -19,22 +19,11 @@ var db *gorm.DB
 
 func CreateMemory(c echo.Context) error {
 	// Struct untuk ambil data web
-<<<<<<< HEAD
-	webData := struct {
-		DateAdded    time.Time         `json:"dateAdded"`
-		DateModified time.Time         `json:"dateModified"`
-		Desc         string            `json:"MemoryDesc"`
-		UserId       uint              `json:"UserId"`
-		PictureId    uint              `json:"pictureId,omitempty"`
-		Path         []string          `json:"PicturePath"`
-		Tag          []model.MemoryTag `json:"tags"`
-=======
 	body := struct {
-		Description string      `json:"description"`
-		UserId      uint        `json:"userId"`
-		Paths       []string    `json:"picturePaths"`
-		Tags        []model.Tag `json:"tags"`
->>>>>>> b933109c6a496304bea0912552be2d443ab74b16
+		Description string            `json:"description"`
+		UserId      uint              `json:"userId"`
+		Paths       []string          `json:"picturePaths"`
+		Tags        []model.MemoryTag `json:"tags"`
 	}{}
 	if err := c.Bind(&body); err != nil {
 		panic("Error di binding data")
@@ -69,22 +58,14 @@ func CreateMemory(c echo.Context) error {
 
 	currentTime := time.Now()
 	memory := model.Memory{
-<<<<<<< HEAD
 		BaseModel: model.BaseModel{
-			Created_at: webData.DateAdded,
-			Updated_at: time.Now(),
+			Created_at: currentTime,
+			Updated_at: currentTime,
 		},
-		Desc:    webData.Desc,
-		Userid:  webData.UserId,
-		Tags:    webData.Tag,
+		Desc:    body.Description,
+		Userid:  body.UserId,
+		Tags:    body.Tags,
 		Picture: pictures,
-=======
-		Desc:         body.Description,
-		UserId:       body.UserId,
-		Tag:          body.Tags,
-		Picture:      pictures,
-		DateAdded:    currentTime,
-		DateModified: currentTime,
 	}
 	if err := db.Create(&memory).Error; err != nil {
 		panic(err)
@@ -101,7 +82,6 @@ func UpdateMemory(c echo.Context) error {
 	memoryId, err := strconv.Atoi(rawId)
 	if err != nil {
 		panic(err)
->>>>>>> b933109c6a496304bea0912552be2d443ab74b16
 	}
 
 	body := struct {
@@ -119,7 +99,7 @@ func UpdateMemory(c echo.Context) error {
 	}
 
 	memory.Desc = body.Description
-	memory.DateModified = time.Now()
+	memory.BaseModel.Updated_at = time.Now()
 	memory.Tag = body.Tags
 
 	if err := db.Save(&memory).Error; err != nil {
