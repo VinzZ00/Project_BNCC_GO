@@ -29,19 +29,14 @@ func main() {
 		SigningKey:  []byte(config.JWT_KEY),
 		TokenLookup: "cookie:Token",
 		ErrorHandler: func(c echo.Context, err error) error {
-			c.JSON(http.StatusUnauthorized, struct {
-				Message string
-			}{
-				Message: "Status Un Authorized",
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"message": "You are not authorized",
 			})
-			return nil
 		},
 	}))
 	memoryGroup.GET("/test", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, struct {
-			Message string
-		}{
-			Message: "hellowFromProtectedAPI, Ini Harus dalam kondisi sudah signed In",
+		return c.JSON(http.StatusOK, map[string]string{
+			"message": "hellowFromProtectedAPI, Ini Harus dalam kondisi sudah signed In",
 		})
 	})
 
