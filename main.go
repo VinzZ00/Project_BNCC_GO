@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/labstack/echo-jwt/v4"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
 	e := echo.New()
 
+	e.Use(middleware.RemoveTrailingSlash())
 	e.GET("/", func(c echo.Context) error {
 		fmt.Println("Hello")
 		return c.String(301, "Hello Welcome to this PAGE")
@@ -24,7 +26,7 @@ func main() {
 
 	memoryGroup := e.Group("/memories")
 	memoryGroup.Use(echojwt.WithConfig(echojwt.Config{
-		SigningKey: []byte(config.JWT_KEY),
+		SigningKey:  []byte(config.JWT_KEY),
 		TokenLookup: "cookie:Token",
 		ErrorHandler: func(c echo.Context, err error) error {
 			c.JSON(http.StatusUnauthorized, struct {
@@ -43,8 +45,7 @@ func main() {
 		})
 	})
 
-	memoryGroup.POST("/", controller.CreateMemory)
-
+	memoryGroup.POST("", controller.CreateMemory)
 
 	if err := e.Start(":5566"); err != nil {
 		panic(err)
