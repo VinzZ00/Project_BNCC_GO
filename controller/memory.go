@@ -19,52 +19,51 @@ var db *gorm.DB
 
 func CreateMemory(c echo.Context) error {
 	// Struct untuk ambil data web
-	webData := struct {
-		Memoryid     uint        `json:"memoryid,omitempty"`
-		DateAdded    time.Time   `json:"dateAdded"`
-		DateModified time.Time   `json:"dateModified"`
-		Desc         string      `json:"MemoryDesc"`
-		UserId       uint        `json:"UserId"`
-		PictureId    uint        `json:"pictureId,omitempty"`
-		Path         []string    `json:"PicturePath"`
-		Tag          []model.Tag `json:"tags"`
+	body := struct {
+		Description string      `json:"description"`
+		UserId      uint        `json:"userId"`
+		Paths       []string    `json:"picturePaths"`
+		Tags        []model.Tag `json:"tags"`
 	}{}
-	if err := c.Bind(&webData); err != nil {
+	if err := c.Bind(&body); err != nil {
 		panic("Error di binding data")
 	}
 
-	picturesbyte := [][]byte{}
-	for _, value := range webData.Path {
-		imagefile, err := os.Open(value)
+	picturesBytes := [][]byte{}
+	for _, value := range body.Paths {
+		imageFile, err := os.Open(value)
 		if err != nil {
 			panic("path invalid")
 		}
-		imageData, _, err := image.Decode(imagefile)
-		buff := new(bytes.Buffer)
-		err = png.Encode(buff, imageData)
+
+		imageData, _, err := image.Decode(imageFile)
 		if err != nil {
 			panic(err)
 		}
-		picturesbyte = append(picturesbyte, buff.Bytes())
+
+		buff := new(bytes.Buffer)
+		if err = png.Encode(buff, imageData); err != nil {
+			panic(err)
+		}
+		picturesBytes = append(picturesBytes, buff.Bytes())
 	}
 
 	pictures := []model.Picture{}
-	for _, value := range picturesbyte {
+	for _, value := range picturesBytes {
 		pic := model.Picture{
 			Picture: value,
 		}
 		pictures = append(pictures, pic)
 	}
 
-	// Create memory model dan insert memory
+	currentTime := time.Now()
 	memory := model.Memory{
-		Memoryid:     webData.Memoryid,
-		DateAdded:    webData.DateAdded,
-		DateModified: time.Now(),
-		Desc:         webData.Desc,
-		UserId:       webData.UserId,
-		Tag:          webData.Tag,
+		Desc:         body.Description,
+		UserId:       body.UserId,
+		Tag:          body.Tags,
 		Picture:      pictures,
+		DateAdded:    currentTime,
+		DateModified: currentTime,
 	}
 	result := db.Create(&memory)
 	fmt.Println(result)
@@ -76,7 +75,7 @@ func CreateMemory(c echo.Context) error {
 		Message string
 	}{
 		Status:  202,
-		Message: "Memorry has successfully created",
+		Message: "Memory has successfully created",
 	}
 	return json.NewEncoder(c.Response()).Encode(res)
 }
@@ -87,5 +86,4 @@ func init() {
 	} else {
 		panic(err)
 	}
-
 }
