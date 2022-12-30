@@ -46,6 +46,7 @@ func main() {
 	})
 
 	memoryGroup.POST("", controller.CreateMemory)
+	memoryGroup.PUT("/:id", controller.UpdateMemory)
 
 	if err := e.Start(":5566"); err != nil {
 		panic(err)
