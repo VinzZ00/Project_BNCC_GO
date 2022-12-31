@@ -98,6 +98,7 @@ func UpdateMemory(c echo.Context) error {
 		panic(err)
 	}
 
+	// membuat tag yang terupdate baru dari response web
 	tags := []model.MemoryTag{}
 	for _, tag := range body.Tags {
 		tags = append(tags, model.MemoryTag{
