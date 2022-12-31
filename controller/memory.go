@@ -98,9 +98,17 @@ func UpdateMemory(c echo.Context) error {
 		panic(err)
 	}
 
+	tags := []model.MemoryTag{}
+	for _, tag := range body.Tags {
+		tags = append(tags, model.MemoryTag{
+			Memory_Id: memory.BaseModel.Id,
+			Tag_Id:    tag.BaseModel.Id,
+		})
+	}
+
 	memory.Desc = body.Description
 	memory.BaseModel.Updated_at = time.Now()
-	memory.Tag = body.Tags
+	memory.Tags = tags
 
 	if err := db.Save(&memory).Error; err != nil {
 		panic(err)
