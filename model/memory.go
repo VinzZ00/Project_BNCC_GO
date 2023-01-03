@@ -1,7 +1,7 @@
 package model
 
 type Memory struct {
-	BaseModel BaseModel   `gorm:"embedded"`
+	BaseModel
 	Desc      string      `gorm:"column:MemoryDesc;"`
 	Userid    uint        `gorm:"column:UserId"`
 	Picture   []Picture   `gorm:"foreignkey:Memory_Id"`

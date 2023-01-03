@@ -1,7 +1,7 @@
 package model
 
 type Picture struct {
-	BaseModel BaseModel `gorm:"embedded"`
+	BaseModel
 	Data      []byte    `gorm:"column:data;"`
 	Memory_Id uint      `gorm:"column:memory_id;"`
 }
