@@ -1,6 +1,6 @@
 package model
 
 type MemoryTag struct {
-	Memory_Id uint
-	Tag_Id    uint
+	MemoryID uint `gorm:"primaryKey"`
+	TagID    uint `gorm:"primaryKey"`
 }
