@@ -1,10 +1,14 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type BaseModel struct {
-	Id         uint `gorm:"primarykey;auto_increment"`
-	Created_at time.Time
-	Updated_at time.Time
-	Deleted_at time.Time
+	ID        uint `gorm:"primarykey;auto_increment"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt
 }

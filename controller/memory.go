@@ -59,8 +59,8 @@ func CreateMemory(c echo.Context) error {
 	currentTime := time.Now()
 	memory := model.Memory{
 		BaseModel: model.BaseModel{
-			Created_at: currentTime,
-			Updated_at: currentTime,
+			CreatedAt: currentTime,
+			UpdatedAt: currentTime,
 		},
 		Desc:    body.Description,
 		Userid:  body.UserId,
@@ -102,13 +102,13 @@ func UpdateMemory(c echo.Context) error {
 	tags := []model.MemoryTag{}
 	for _, tag := range body.Tags {
 		tags = append(tags, model.MemoryTag{
-			Memory_Id: memory.BaseModel.Id,
-			Tag_Id:    tag.BaseModel.Id,
+			Memory_Id: memory.BaseModel.ID,
+			Tag_Id:    tag.BaseModel.ID,
 		})
 	}
 
 	memory.Desc = body.Description
-	memory.BaseModel.Updated_at = time.Now()
+	memory.BaseModel.UpdatedAt = time.Now()
 	memory.Tags = tags
 
 	if err := db.Save(&memory).Error; err != nil {
