@@ -3,13 +3,9 @@ package controller
 import (
 	"Project_BNCC_GO/model"
 	"Project_BNCC_GO/utils"
-	"bytes"
 	"errors"
 	"fmt"
-	"image"
-	"image/png"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -24,36 +20,104 @@ type MemoryIDParam struct {
 
 func CreateMemory(c echo.Context) error {
 	// Struct untuk ambil data web
-	body := struct {
-		Description string            `json:"description"`
-		UserId      uint              `json:"userId"`
-		Paths       []string          `json:"picturePaths"`
-		Tags        []model.MemoryTag `json:"tags"`
+	payload := struct {
+		Description   string   `json:"description"`
+		UserId        uint     `json:"userId"`
+		base64Picture []string `json:"pictures"`
+		Tags          []string `json:"tags"`
 	}{}
-	if err := c.Bind(&body); err != nil {
-		panic("Error di binding data")
+	if err := c.Bind(&payload); err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
 	}
 
-	picturesBytes := [][]byte{}
-	for _, value := range body.Paths {
-		imageFile, err := os.Open(value)
-		if err != nil {
-			panic("path invalid")
-		}
-
-		imageData, _, err := image.Decode(imageFile)
-		if err != nil {
-			panic(err)
-		}
-
-		buff := new(bytes.Buffer)
-		if err = png.Encode(buff, imageData); err != nil {
-			panic(err)
-		}
-		picturesBytes = append(picturesBytes, buff.Bytes())
-	}
-
+	// Pictures
 	pictures := []model.Picture{}
+	for _, val := range payload.base64Picture {
+		picture := model.Picture{
+			BaseModel: model.BaseModel{
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+			Data: val,
+		}
+		pictures = append(pictures, picture)
+	}
+
+	//Tags
+	tags := []model.Tag{}
+	for _, val := range payload.Tags {
+		checkTag := model.Tag{}
+
+		err := db.Where("name= ?", val).First(&checkTag)
+		if err != nil {
+			tag := model.Tag{
+				BaseModel: model.BaseModel{
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+				Name: val,
+			}
+
+			if err := db.Create(&tag).Error; err != nil {
+				panic(err)
+			}
+
+			t := model.Tag{}
+			db.Where("name = ? ", val).First(&tag)
+			tags = append(tags, t)
+		} else {
+			tags = append(tags, checkTag)
+		}
+	}
+
+	//memoryTag
+	memoryTags := []model.MemoryTag{}
+
+	for _, val := range tags {
+		memoryTag := model.MemoryTag{
+			TagID: val.ID,
+		}
+		memoryTags = append(memoryTags, memoryTag)
+	}
+
+	memory := model.Memory{
+		BaseModel: model.BaseModel{
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+		Description:  payload.Description,
+		UserID:       payload.UserId,
+		Pictures:     pictures,
+		MemoriesTags: memoryTags,
+	}
+
+	if err := db.Create(&memory).Error; err != nil {
+		panic(err)
+	}
+
+	// picturesBytes := [][]byte{}
+	// for _, value := range payload.Paths {
+	// 	imageFile, err := os.Open(value)
+	// 	if err != nil {
+	// 		panic("path invalid")
+	// 	}
+
+	// 	imageData, _, err := image.Decode(imageFile)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+
+	// 	buff := new(bytes.Buffer)
+	// 	if err = png.Encode(buff, imageData); err != nil {
+	// 		panic(err)
+	// 	}
+	// 	picturesBytes = append(picturesBytes, buff.Bytes())
+	// }
+
+	// pictures := []model.Picture{}
 	// todo: karna modelnya diganti biar pake `string` untuk nerima base64,
 	//       jadinya code dibawah gk bisa dipake
 	//
@@ -64,15 +128,12 @@ func CreateMemory(c echo.Context) error {
 	// 	pictures = append(pictures, pic)
 	// }
 
-	memory := model.Memory{
-		Description:  body.Description,
-		UserID:       body.UserId,
-		MemoriesTags: body.Tags,
-		Pictures:     pictures,
-	}
-	if err := db.Create(&memory).Error; err != nil {
-		panic(err)
-	}
+	// memory := model.Memory{
+	// 	Description:  payload.Description,
+	// 	UserID:       payload.UserId,
+	// 	MemoriesTags: payload.Tags,
+	// 	Pictures:     pictures,
+	// }
 
 	return utils.SendResponse(c, utils.BaseResponse{
 		StatusCode: http.StatusCreated,
