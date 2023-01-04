@@ -3,7 +3,9 @@ package main
 import (
 	"Project_BNCC_GO/config"
 	"Project_BNCC_GO/controller"
-	"fmt"
+	"Project_BNCC_GO/handler"
+	"html/template"
+	"io"
 	"net/http"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -11,14 +13,23 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+type Template struct {
+    templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
 func main() {
 	e := echo.New()
-
+	t := &Template{
+		templates: template.Must(template.ParseGlob("public/views/*.html")),
+	}
+	e.Renderer = t
+	
 	e.Use(middleware.RemoveTrailingSlash())
-	e.GET("/", func(c echo.Context) error {
-		fmt.Println("Hello")
-		return c.String(301, "Hello Welcome to this PAGE")
-	})
+	e.GET("/", handler.Home)
 
 	authGroup := e.Group("/auth")
 	authGroup.POST("/login", controller.Login)
