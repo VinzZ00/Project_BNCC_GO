@@ -121,6 +121,23 @@ func UpdateMemory(c echo.Context) error {
 	})
 }
 
+func DeleteMemory(c echo.Context) error {
+	rawId := c.Param("id")
+	memoryId, err := strconv.Atoi(rawId)
+	if err != nil {
+		panic(err)
+	}
+
+	if err = db.Delete(&model.Memory{}, memoryId).Error; err != nil {
+		panic(err)
+	}
+
+	return c.JSON(http.StatusAccepted, map[string]string{
+		"status": fmt.Sprint(http.StatusAccepted),
+		"message": fmt.Sprintf("Memory with ID %d has been deleted", memoryId),
+	})
+}
+
 func init() {
 	if database, err := model.GetDB(); err == nil {
 		db = database
