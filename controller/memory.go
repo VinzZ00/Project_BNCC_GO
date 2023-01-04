@@ -2,6 +2,7 @@ package controller
 
 import (
 	"Project_BNCC_GO/model"
+	"Project_BNCC_GO/utils"
 	"bytes"
 	"fmt"
 	"image"
@@ -74,9 +75,9 @@ func CreateMemory(c echo.Context) error {
 		panic(err)
 	}
 
-	return c.JSON(http.StatusCreated, map[string]string{
-		"status":  fmt.Sprint(http.StatusCreated),
-		"message": "Memory is successfully created",
+	return utils.SendResponse(c, utils.BaseResponse{
+		StatusCode: http.StatusCreated,
+		Message: "Memory is successfully created",
 	})
 }
 
@@ -118,9 +119,9 @@ func UpdateMemory(c echo.Context) error {
 		panic(err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{
-		"status":  fmt.Sprint(http.StatusOK),
-		"message": "Memory has been updated",
+	return utils.SendResponse(c, utils.BaseResponse{
+		StatusCode: http.StatusOK,
+		Message: "Memory has been updated",
 	})
 }
 
@@ -135,9 +136,9 @@ func DeleteMemory(c echo.Context) error {
 		panic(err)
 	}
 
-	return c.JSON(http.StatusAccepted, map[string]string{
-		"status":  fmt.Sprint(http.StatusAccepted),
-		"message": fmt.Sprintf("Memory with ID %d has been deleted", memoryId),
+	return utils.SendResponse(c, utils.BaseResponse{
+		StatusCode: http.StatusAccepted,
+		Message: fmt.Sprintf("Memory with ID %d has been deleted", memoryId),
 	})
 }
 

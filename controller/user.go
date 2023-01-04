@@ -3,6 +3,7 @@ package controller
 import (
 	"Project_BNCC_GO/config"
 	"Project_BNCC_GO/model"
+	"Project_BNCC_GO/utils"
 	"fmt"
 	"log"
 	"net/http"
@@ -58,8 +59,9 @@ func Login(c echo.Context) error {
 
 	c.SetCookie(cookie)
 
-	return c.JSON(http.StatusOK, map[string]string{
-		"message": "Successfully logged in",
+	return utils.SendResponse(c, utils.BaseResponse{
+		StatusCode: http.StatusOK,
+		Message:    "Successfully logged in",
 	})
 }
 
@@ -79,8 +81,9 @@ func SignUP(c echo.Context) error {
 		panic(result.Error)
 	}
 
-	return c.JSON(http.StatusCreated, map[string]string{
-		"message": fmt.Sprintf("Successfully registered a new user with ID %d", signupUser.ID),
+	return utils.SendResponse(c, utils.BaseResponse{
+		StatusCode: http.StatusCreated,
+		Message:    fmt.Sprintf("Successfully registered a new user with ID %d", signupUser.ID),
 	})
 }
 

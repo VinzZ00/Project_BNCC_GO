@@ -3,6 +3,7 @@ package main
 import (
 	"Project_BNCC_GO/config"
 	"Project_BNCC_GO/controller"
+	"Project_BNCC_GO/utils"
 	"fmt"
 	"net/http"
 
@@ -29,16 +30,12 @@ func main() {
 		SigningKey:  []byte(config.JWT_KEY),
 		TokenLookup: "cookie:Token",
 		ErrorHandler: func(c echo.Context, err error) error {
-			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"message": "You are not authorized",
+			return utils.SendResponse(c, utils.BaseResponse{
+				StatusCode: http.StatusUnauthorized,
+				Message: "You are not authorized",
 			})
 		},
 	}))
-	memoryGroup.GET("/test", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]string{
-			"message": "hellowFromProtectedAPI, Ini Harus dalam kondisi sudah signed In",
-		})
-	})
 
 	memoryGroup.POST("", controller.CreateMemory)
 	memoryGroup.PUT("/:id", controller.UpdateMemory)
