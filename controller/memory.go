@@ -21,7 +21,7 @@ type MemoryIDParam struct {
 func CreateMemory(c echo.Context) error {
 	// Struct untuk ambil data web
 	payload := struct {
-		Description   string   `json:"description"`
+		Description   string   `json:"description" validate:"require"`
 		Base64Picture []string `json:"pictures"`
 		Tags          []string `json:"tags"`
 	}{}
