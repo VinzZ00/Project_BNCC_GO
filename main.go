@@ -32,6 +32,8 @@ func main() {
 	
 	e.Use(middleware.RemoveTrailingSlash())
 	e.GET("/", handler.Home)
+	e.GET("/login", handler.Login)
+	e.GET("/register", handler.Register)
 
 	authGroup := e.Group("/auth")
 	authGroup.POST("/login", controller.Login)
