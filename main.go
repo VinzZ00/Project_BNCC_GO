@@ -32,7 +32,7 @@ func main() {
 		ErrorHandler: func(c echo.Context, err error) error {
 			return utils.SendResponse(c, utils.BaseResponse{
 				StatusCode: http.StatusUnauthorized,
-				Message: "You are not authorized",
+				Message:    "You are not authorized",
 			})
 		},
 	}))
