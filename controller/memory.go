@@ -164,6 +164,14 @@ func UpdateMemory(c echo.Context) error {
 		})
 	}
 
+	currentUser, _ := utils.GetAuthUser(c)
+	if memory.UserID != currentUser.UserID {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusForbidden,
+			Message:    "You do not own this memory",
+		})
+	}
+
 	// membuat tag yang terupdate baru dari response web
 	tags := []model.MemoryTag{}
 	for _, tag := range payload.Tags {
@@ -200,7 +208,8 @@ func DeleteMemory(c echo.Context) error {
 	}
 
 	memoryId := payload.ID
-	if err := db.Delete(&model.Memory{}, memoryId).Error; err != nil {
+	var memory model.Memory
+	if err := db.First(&memory, memoryId).Error; err != nil {
 		response := utils.BaseResponse{
 			Message:    err.Error(),
 			StatusCode: http.StatusInternalServerError,
@@ -210,6 +219,20 @@ func DeleteMemory(c echo.Context) error {
 		}
 
 		return utils.SendResponse(c, response)
+	}
+
+	currentUser, _ := utils.GetAuthUser(c)
+	if memory.UserID != currentUser.UserID {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusForbidden,
+			Message:    "You do not own this memory",
+		})
+	}
+	if err := db.Delete(&memory).Error; err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		})
 	}
 
 	return utils.SendResponse(c, utils.BaseResponse{
