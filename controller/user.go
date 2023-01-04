@@ -34,13 +34,12 @@ func Login(c echo.Context) error {
 	}
 	if err := db.Where("email = ?", user.Email).Take(&user).Error; err != nil {
 		response := utils.BaseResponse{
-			Message: err.Error(),
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
 		}
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.StatusCode = http.StatusNotFound
-		} else {
-			response.StatusCode = http.StatusInternalServerError
 		}
 
 		return utils.SendResponse(c, response)
@@ -121,11 +120,9 @@ func SignUP(c echo.Context) error {
 }
 
 func init() {
-	if db == nil {
-		if database, err := model.GetDB(); err == nil {
-			db = database
-		} else {
-			panic(err)
-		}
+	if database, err := model.GetDB(); err == nil {
+		db = database
+	} else {
+		panic(err)
 	}
 }

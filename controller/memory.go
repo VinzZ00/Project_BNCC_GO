@@ -141,12 +141,11 @@ func DeleteMemory(c echo.Context) error {
 	memoryId := payload.ID
 	if err := db.Delete(&model.Memory{}, memoryId).Error; err != nil {
 		response := utils.BaseResponse{
-			Message: err.Error(),
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
 		}
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.StatusCode = http.StatusNotFound
-		} else {
-			response.StatusCode = http.StatusInternalServerError
 		}
 
 		return utils.SendResponse(c, response)
