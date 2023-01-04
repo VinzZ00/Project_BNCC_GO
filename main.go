@@ -3,14 +3,11 @@ package main
 import (
 	"Project_BNCC_GO/config"
 	"Project_BNCC_GO/controller"
-<<<<<<< HEAD
 	"Project_BNCC_GO/handler"
 	"html/template"
 	"io"
-=======
 	"Project_BNCC_GO/utils"
 	"fmt"
->>>>>>> afb631ae18e03bc3f7887f33b19f3aef70fcc7ab
 	"net/http"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
