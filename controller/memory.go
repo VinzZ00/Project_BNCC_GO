@@ -22,7 +22,6 @@ func CreateMemory(c echo.Context) error {
 	// Struct untuk ambil data web
 	payload := struct {
 		Description   string   `json:"description"`
-		UserId        uint     `json:"userId"`
 		Base64Picture []string `json:"pictures"`
 		Tags          []string `json:"tags"`
 	}{}
@@ -83,13 +82,14 @@ func CreateMemory(c echo.Context) error {
 		memoryTags = append(memoryTags, memoryTag)
 	}
 
+	currentUser, _ := utils.GetAuthUser(c)
 	memory := model.Memory{
 		BaseModel: model.BaseModel{
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},
 		Description:  payload.Description,
-		UserID:       payload.UserId,
+		UserID:       currentUser.UserID,
 		Pictures:     pictures,
 		MemoriesTags: memoryTags,
 	}
