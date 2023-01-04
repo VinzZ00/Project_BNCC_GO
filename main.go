@@ -7,7 +7,6 @@ import (
 	"html/template"
 	"io"
 	"Project_BNCC_GO/utils"
-	"fmt"
 	"net/http"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -29,6 +28,7 @@ func main() {
 		templates: template.Must(template.ParseGlob("public/views/*.html")),
 	}
 	e.Renderer = t
+	e.Static("/images", "public/images")
 	
 	e.Use(middleware.RemoveTrailingSlash())
 	e.GET("/", handler.Home)
