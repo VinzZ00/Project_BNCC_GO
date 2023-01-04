@@ -23,7 +23,7 @@ func CreateMemory(c echo.Context) error {
 	payload := struct {
 		Description   string   `json:"description"`
 		UserId        uint     `json:"userId"`
-		base64Picture []string `json:"pictures"`
+		Base64Picture []string `json:"pictures"`
 		Tags          []string `json:"tags"`
 	}{}
 	if err := c.Bind(&payload); err != nil {
@@ -35,7 +35,7 @@ func CreateMemory(c echo.Context) error {
 
 	// Pictures
 	pictures := []model.Picture{}
-	for _, val := range payload.base64Picture {
+	for _, val := range payload.Base64Picture {
 		picture := model.Picture{
 			BaseModel: model.BaseModel{
 				CreatedAt: time.Now(),
@@ -46,12 +46,12 @@ func CreateMemory(c echo.Context) error {
 		pictures = append(pictures, picture)
 	}
 
-	//Tags
+	//Tags Creation
 	tags := []model.Tag{}
 	for _, val := range payload.Tags {
 		checkTag := model.Tag{}
 
-		err := db.Where("name= ?", val).First(&checkTag)
+		err := db.Where("name= ?", val).First(&checkTag).Error
 		if err != nil {
 			tag := model.Tag{
 				BaseModel: model.BaseModel{
@@ -64,13 +64,13 @@ func CreateMemory(c echo.Context) error {
 			if err := db.Create(&tag).Error; err != nil {
 				panic(err)
 			}
-
-			t := model.Tag{}
-			db.Where("name = ? ", val).First(&tag)
-			tags = append(tags, t)
-		} else {
-			tags = append(tags, checkTag)
 		}
+	}
+
+	for _, val := range payload.Tags {
+		t := model.Tag{}
+		db.Where("name = ? ", val).First(&t)
+		tags = append(tags, t)
 	}
 
 	//memoryTag
