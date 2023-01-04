@@ -54,7 +54,7 @@ func Login(c echo.Context) error {
 	//Generate token
 	expTime := time.Now().Add(time.Minute * 15)
 	claims := config.JwtClaim{
-		UserId: user.ID,
+		UserID: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "PROJECT_BNCC_GO",
 			ExpiresAt: jwt.NewNumericDate(expTime),
