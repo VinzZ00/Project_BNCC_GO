@@ -26,5 +26,6 @@ func GetAuthUser(context echo.Context) (config.JwtClaim, error) {
 		return config.JwtClaim{}, errors.New("user is unauthorized")
 	}
 
-	return token.Claims.(config.JwtClaim), nil
+	claims := token.Claims.(*config.JwtClaim)
+	return *claims, nil
 }

@@ -5,10 +5,12 @@ import (
 	"Project_BNCC_GO/controller"
 	"Project_BNCC_GO/handler"
 	"Project_BNCC_GO/utils"
+	"errors"
 	"html/template"
 	"io"
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v4"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -48,6 +50,23 @@ func main() {
 				StatusCode: http.StatusUnauthorized,
 				Message:    "You are not authorized",
 			})
+		},
+		ParseTokenFunc: func(c echo.Context, auth string) (interface{}, error) {
+			token, err := jwt.ParseWithClaims(auth, &config.JwtClaim{}, func(t *jwt.Token) (interface{}, error) {
+				return config.JWT_KEY, nil
+			})
+
+			if err != nil {
+				return nil, err
+			}
+			if !token.Valid {
+				return nil, errors.New("invalid token")
+			}
+
+			return token, nil
+		},
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(config.JwtClaim)
 		},
 	}))
 
