@@ -49,12 +49,15 @@ func CreateMemory(c echo.Context) error {
 	}
 
 	pictures := []model.Picture{}
-	for _, value := range picturesBytes {
-		pic := model.Picture{
-			Data: value,
-		}
-		pictures = append(pictures, pic)
-	}
+	// todo: karna modelnya diganti biar pake `string` untuk nerima base64,
+	//       jadinya code dibawah gk bisa dipake
+	//
+	// for _, value := range picturesBytes {
+	// 	pic := model.Picture{
+	// 		Data: value,
+	// 	}
+	// 	pictures = append(pictures, pic)
+	// }
 
 	currentTime := time.Now()
 	memory := model.Memory{
@@ -133,7 +136,7 @@ func DeleteMemory(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusAccepted, map[string]string{
-		"status": fmt.Sprint(http.StatusAccepted),
+		"status":  fmt.Sprint(http.StatusAccepted),
 		"message": fmt.Sprintf("Memory with ID %d has been deleted", memoryId),
 	})
 }

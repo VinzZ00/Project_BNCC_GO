@@ -2,6 +2,6 @@ package model
 
 type Picture struct {
 	BaseModel
-	Data     []byte
+	Data     string
 	MemoryID uint
 }
