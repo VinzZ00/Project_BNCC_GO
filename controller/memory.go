@@ -2,6 +2,7 @@ package controller
 
 import (
 	"Project_BNCC_GO/model"
+	"Project_BNCC_GO/utils"
 	"bytes"
 	"fmt"
 	"image"
@@ -49,12 +50,15 @@ func CreateMemory(c echo.Context) error {
 	}
 
 	pictures := []model.Picture{}
-	for _, value := range picturesBytes {
-		pic := model.Picture{
-			Data: value,
-		}
-		pictures = append(pictures, pic)
-	}
+	// todo: karna modelnya diganti biar pake `string` untuk nerima base64,
+	//       jadinya code dibawah gk bisa dipake
+	//
+	// for _, value := range picturesBytes {
+	// 	pic := model.Picture{
+	// 		Data: value,
+	// 	}
+	// 	pictures = append(pictures, pic)
+	// }
 
 	currentTime := time.Now()
 	memory := model.Memory{
@@ -71,9 +75,9 @@ func CreateMemory(c echo.Context) error {
 		panic(err)
 	}
 
-	return c.JSON(http.StatusCreated, map[string]string{
-		"status":  fmt.Sprint(http.StatusCreated),
-		"message": "Memory is successfully created",
+	return utils.SendResponse(c, utils.BaseResponse{
+		StatusCode: http.StatusCreated,
+		Message: "Memory is successfully created",
 	})
 }
 
@@ -115,9 +119,26 @@ func UpdateMemory(c echo.Context) error {
 		panic(err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{
-		"status":  fmt.Sprint(http.StatusOK),
-		"message": "Memory has been updated",
+	return utils.SendResponse(c, utils.BaseResponse{
+		StatusCode: http.StatusOK,
+		Message: "Memory has been updated",
+	})
+}
+
+func DeleteMemory(c echo.Context) error {
+	rawId := c.Param("id")
+	memoryId, err := strconv.Atoi(rawId)
+	if err != nil {
+		panic(err)
+	}
+
+	if err = db.Delete(&model.Memory{}, memoryId).Error; err != nil {
+		panic(err)
+	}
+
+	return utils.SendResponse(c, utils.BaseResponse{
+		StatusCode: http.StatusAccepted,
+		Message: fmt.Sprintf("Memory with ID %d has been deleted", memoryId),
 	})
 }
 
