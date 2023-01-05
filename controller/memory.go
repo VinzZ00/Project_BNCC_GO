@@ -248,6 +248,36 @@ func DeleteMemory(c echo.Context) error {
 	})
 }
 
+func GetMemorySortBy(c echo.Context) error {
+	payload := struct {
+		SortBy string `url:"sortBy" validate:"required"`
+		Type   string `url:"sort_type"`
+	}{}
+
+	currentUser, _ := utils.GetAuthUser(c)
+	c.Bind(&payload)
+
+	memories := []model.Memory{}
+	switch payload.SortBy {
+	case "uploadTime":
+		db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("created_at").Find(&memories)
+
+	case "tags":
+		db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags", func(db *gorm.DB) *gorm.DB {
+			db = db.Order("name ")
+			return db
+		}).Find(&memories)
+	case "last_edit":
+		switch payload.Type {
+		case "asc":
+			db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("updated_at asc").Find(&memories)
+		case "desc":
+			db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("updated_at desc").Find(&memories)
+		}
+	}
+	return c.JSON(http.StatusOK, &memories)
+}
+
 func init() {
 	if database, err := model.GetDB(); err == nil {
 		db = database
