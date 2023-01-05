@@ -16,8 +16,7 @@ func DeletePicture(c echo.Context) error {
 	params := PictureIDParam{}
 
 	c.Bind(&params)
-	deletedPic := model.Picture{}
-	if err := db.Unscoped().Where("id = ?", params.ID).Delete(&deletedPic).Error; err != nil {
+	if err := db.Delete(&model.Picture{}, params.ID).Error; err != nil {
 		return utils.SendResponse(c, utils.BaseResponse{
 			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
