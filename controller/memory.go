@@ -141,6 +141,53 @@ func CreateMemory(c echo.Context) error {
 	})
 }
 
+func GetAllMemories(c echo.Context) error {
+	memories := []model.Memory{}
+
+	currentUser, _ := utils.GetAuthUser(c)
+	fmt.Println("Issued by", currentUser.UserID)
+
+	if err := db.Where("User_ID = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Find(&memories).Error; err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, &memories)
+}
+
+func GetAMemories(e echo.Context) error {
+	memory := model.Memory{}
+
+	payload := MemoryIDParam{}
+	if err := e.Bind(&payload); err != nil {
+		return utils.SendResponse(e, utils.BaseResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
+	}
+
+	if err := db.Where("id = ?", payload.ID).Preload("Pictures").Preload("MemoriesTags").Find(&memory).Error; err != nil {
+		return utils.SendResponse(e, utils.BaseResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
+	currentUser, _ := utils.GetAuthUser(e)
+	fmt.Println("Issued by", currentUser.UserID)
+
+	if memory.UserID != currentUser.UserID {
+		return utils.SendResponse(e, utils.BaseResponse{
+			StatusCode: http.StatusForbidden,
+			Message:    "You do not own this memory",
+		})
+	}
+
+	return e.JSON(http.StatusOK, &memory)
+}
+
 func UpdateMemory(c echo.Context) error {
 	payload := struct {
 		MemoryIDParam

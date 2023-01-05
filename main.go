@@ -73,6 +73,8 @@ func main() {
 	memoryGroup.POST("", controller.CreateMemory)
 	memoryGroup.PUT("/:id", controller.UpdateMemory)
 	memoryGroup.DELETE("/:id", controller.DeleteMemory)
+	memoryGroup.GET("/all", controller.GetAllMemories)
+	memoryGroup.GET("/find/:id", controller.GetAMemories)
 
 	if err := e.Start(":5566"); err != nil {
 		panic(err)
