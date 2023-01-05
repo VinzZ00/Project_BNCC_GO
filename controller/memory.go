@@ -89,7 +89,10 @@ func CreateMemory(c echo.Context) error {
 	}
 
 	if err := db.Create(&memory).Error; err != nil {
-		panic(err)
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
 	}
 
 	return utils.SendResponse(c, utils.BaseResponse{
