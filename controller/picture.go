@@ -8,15 +8,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type PictureIDParam struct {
+	ID int `param:"id" validate:"required,number"`
+}
+
 func DeletePicture(c echo.Context) error {
-	params := struct {
-		MemoryIDParam
-		pictureId string `param:"picture_id" validate:"required,number"`
-	}{}
+	params := PictureIDParam{}
 
 	c.Bind(&params)
 	deletedPic := model.Picture{}
-	if err := db.Unscoped().Where("id = ? And memory_id = ?", params.pictureId, params.ID).Delete(&deletedPic).Error; err != nil {
+	if err := db.Unscoped().Where("id = ?", params.ID).Delete(&deletedPic).Error; err != nil {
 		return utils.SendResponse(c, utils.BaseResponse{
 			StatusCode: http.StatusBadRequest,
 			Message:    err.Error(),
