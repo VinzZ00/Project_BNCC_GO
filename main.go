@@ -48,7 +48,7 @@ func main() {
 	memoryGroup.GET("", controller.GetAllMemories)
 	memoryGroup.GET("/:id", controller.GetAMemories)
 
-	memoryGroup.GET("/sort", controller.GetMemorySortBy)
+	memoryGroup.GET("", controller.GetMemorySortBy)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
