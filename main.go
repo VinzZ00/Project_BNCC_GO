@@ -75,6 +75,7 @@ func main() {
 	memoryGroup.DELETE("/:id", controller.DeleteMemory)
 	memoryGroup.GET("/", controller.GetAllMemories)
 	memoryGroup.GET("/:id", controller.GetAMemories)
+	memoryGroup.DELETE("/:id/:picture_id", controller.DeletePicture)
 
 	if err := e.Start(":5566"); err != nil {
 		panic(err)
