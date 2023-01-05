@@ -248,28 +248,6 @@ func DeleteMemory(c echo.Context) error {
 	})
 }
 
-func DeletePicture(c echo.Context) error {
-	params := struct {
-		MemoryIDParam
-		pictureId string `param:"picture_id" validate:"required,number"`
-	}{}
-
-	c.Bind(&params)
-	deletedPic := model.Picture{}
-	if err := db.Unscoped().Where("id = ? And memory_id = ?", params.pictureId, params.ID).Delete(&deletedPic).Error; err != nil {
-		return utils.SendResponse(c, utils.BaseResponse{
-			StatusCode: http.StatusBadRequest,
-			Message:    err.Error(),
-		})
-	}
-
-	return utils.SendResponse(c, utils.BaseResponse{
-		StatusCode: http.StatusOK,
-		Message:    "Picture Successfully deleted",
-	})
-
-}
-
 func init() {
 	if database, err := model.GetDB(); err == nil {
 		db = database
