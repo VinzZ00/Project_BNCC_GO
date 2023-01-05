@@ -15,10 +15,15 @@ type PictureIDParam struct {
 func DeletePicture(c echo.Context) error {
 	params := PictureIDParam{}
 
-	c.Bind(&params)
-	if err := db.Delete(&model.Picture{}, params.ID).Error; err != nil {
+	if err := c.Bind(&params); err != nil {
 		return utils.SendResponse(c, utils.BaseResponse{
 			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
+	}
+	if err := db.Delete(&model.Picture{}, params.ID).Error; err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusInternalServerError,
 			Message:    err.Error(),
 		})
 	}
