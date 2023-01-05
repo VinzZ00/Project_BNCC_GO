@@ -42,31 +42,37 @@ func CreateMemory(c echo.Context) error {
 	}
 
 	//Tags Creation
-	tags := []model.Tag{}
+	var tags []model.Tag
 	for _, val := range payload.Tags {
-		checkTag := model.Tag{}
+		var tag model.Tag
 
-		err := db.Where("name= ?", val).First(&checkTag).Error
+		err := db.Where("name = ?", val).First(&tag).Error
 		if err != nil {
-			tag := model.Tag{
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return utils.SendResponse(c, utils.BaseResponse{
+					StatusCode: http.StatusInternalServerError,
+					Message: err.Error(),
+				})
+			}
+
+			// when a tag doesn't exist in the db, we'll add them to the db
+			// this allows us to make use of the existing tags, while adding new tag if it never existed.
+			tag = model.Tag{
 				Name: val,
 			}
-
 			if err := db.Create(&tag).Error; err != nil {
-				panic(err)
+				return utils.SendResponse(c, utils.BaseResponse{
+					StatusCode: http.StatusInternalServerError,
+					Message: err.Error(),
+				})
 			}
 		}
-	}
 
-	for _, val := range payload.Tags {
-		t := model.Tag{}
-		db.Where("name = ? ", val).First(&t)
-		tags = append(tags, t)
+		tags = append(tags, tag)
 	}
 
 	//memoryTag
 	memoryTags := []model.MemoryTag{}
-
 	for _, val := range tags {
 		memoryTag := model.MemoryTag{
 			TagID: val.ID,
