@@ -3,6 +3,7 @@ package controller
 import (
 	"Project_BNCC_GO/model"
 	"Project_BNCC_GO/utils"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -10,6 +11,29 @@ import (
 
 type PictureIDParam struct {
 	ID int `param:"id" validate:"required,number"`
+}
+
+func ReadPicture(c echo.Context) error {
+	params := PictureIDParam{}
+	if err := c.Bind(&params); err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
+	}
+
+	var picture model.Picture
+	if err := db.First(&picture, params.ID).Error; err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
+	return c.HTML(
+		http.StatusOK,
+		fmt.Sprintf("<img src=\"data:image/png;base64,%s\" alt=\"Blank\" style=\"width: 100%%\"/>", picture.Data),
+	)
 }
 
 func DeletePicture(c echo.Context) error {
