@@ -48,14 +48,13 @@ func main() {
 	memoryGroup.GET("", controller.GetAllMemories)
 	memoryGroup.GET("/:id", controller.GetAMemories)
 
-	memoryGroup.GET("?sort=upload_time", controller.GetMemorySortBy)
-	memoryGroup.GET("?sort=tags", controller.GetMemorySortBy)
-	memoryGroup.GET("?sort=last_edit&sort_type=asc", controller.GetMemorySortBy)
-	memoryGroup.GET("?sort=last_edit&sort_type=desc", controller.GetMemorySortBy)
+	memoryGroup.GET("/sort", controller.GetMemorySortBy)
+	// memoryGroup.GET("sort", controller.GetMemorySortBy)
+	// memoryGroup.GET("sort", controller.GetMemorySortBy)
+	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 
 	pictureGroup := e.Group("/pictures")
 	pictureGroup.DELETE("/:id", controller.DeletePicture, authMiddleware)
-	pictureGroup.GET("/:id", controller.ReadPicture)
 
 	if err := e.Start(":5566"); err != nil {
 		panic(err)
