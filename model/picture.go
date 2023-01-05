@@ -2,6 +2,6 @@ package model
 
 type Picture struct {
 	BaseModel
-	Data     string
-	MemoryID uint
+	Data     string `json:"data"`
+	MemoryID uint   `json:"memory_id"`
 }

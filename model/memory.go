@@ -2,8 +2,8 @@ package model
 
 type Memory struct {
 	BaseModel
-	Description  string
-	UserID       uint
-	Pictures     []Picture
-	MemoriesTags []MemoryTag
+	Description  string      `json:"description"`
+	UserID       uint        `json:"user_id"`
+	Pictures     []Picture   `json:"pictures"`
+	MemoriesTags []MemoryTag `json:"memories_tags"`
 }
