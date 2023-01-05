@@ -50,6 +50,7 @@ func main() {
 
 	pictureGroup := e.Group("/pictures")
 	pictureGroup.DELETE("/:id", controller.DeletePicture, authMiddleware)
+	pictureGroup.GET("/:id", controller.ReadPicture)
 
 	if err := e.Start(":5566"); err != nil {
 		panic(err)
