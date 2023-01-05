@@ -73,7 +73,7 @@ func main() {
 	memoryGroup.POST("", controller.CreateMemory)
 	memoryGroup.PUT("/:id", controller.UpdateMemory)
 	memoryGroup.DELETE("/:id", controller.DeleteMemory)
-	memoryGroup.GET("/", controller.GetAllMemories)
+	memoryGroup.GET("", controller.GetAllMemories)
 	memoryGroup.GET("/:id", controller.GetAMemories)
 	memoryGroup.DELETE("/:id/:picture_id", controller.DeletePicture)
 
