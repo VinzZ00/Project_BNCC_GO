@@ -36,10 +36,6 @@ func CreateMemory(c echo.Context) error {
 	pictures := []model.Picture{}
 	for _, val := range payload.Base64Picture {
 		picture := model.Picture{
-			BaseModel: model.BaseModel{
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
 			Data: val,
 		}
 		pictures = append(pictures, picture)
@@ -53,10 +49,6 @@ func CreateMemory(c echo.Context) error {
 		err := db.Where("name= ?", val).First(&checkTag).Error
 		if err != nil {
 			tag := model.Tag{
-				BaseModel: model.BaseModel{
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				},
 				Name: val,
 			}
 
@@ -84,10 +76,6 @@ func CreateMemory(c echo.Context) error {
 
 	currentUser, _ := utils.GetAuthUser(c)
 	memory := model.Memory{
-		BaseModel: model.BaseModel{
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
 		Description:  payload.Description,
 		UserID:       currentUser.UserID,
 		Pictures:     pictures,
@@ -97,43 +85,6 @@ func CreateMemory(c echo.Context) error {
 	if err := db.Create(&memory).Error; err != nil {
 		panic(err)
 	}
-
-	// picturesBytes := [][]byte{}
-	// for _, value := range payload.Paths {
-	// 	imageFile, err := os.Open(value)
-	// 	if err != nil {
-	// 		panic("path invalid")
-	// 	}
-
-	// 	imageData, _, err := image.Decode(imageFile)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-
-	// 	buff := new(bytes.Buffer)
-	// 	if err = png.Encode(buff, imageData); err != nil {
-	// 		panic(err)
-	// 	}
-	// 	picturesBytes = append(picturesBytes, buff.Bytes())
-	// }
-
-	// pictures := []model.Picture{}
-	// todo: karna modelnya diganti biar pake `string` untuk nerima base64,
-	//       jadinya code dibawah gk bisa dipake
-	//
-	// for _, value := range picturesBytes {
-	// 	pic := model.Picture{
-	// 		Data: value,
-	// 	}
-	// 	pictures = append(pictures, pic)
-	// }
-
-	// memory := model.Memory{
-	// 	Description:  payload.Description,
-	// 	UserID:       payload.UserId,
-	// 	MemoriesTags: payload.Tags,
-	// 	Pictures:     pictures,
-	// }
 
 	return utils.SendResponse(c, utils.BaseResponse{
 		StatusCode: http.StatusCreated,
