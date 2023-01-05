@@ -250,12 +250,16 @@ func DeleteMemory(c echo.Context) error {
 
 func GetMemorySortBy(c echo.Context) error {
 	payload := struct {
-		SortBy string `url:"sortBy" validate:"required"`
-		Type   string `url:"sort_type"`
-	}{}
+		SortBy string
+		Type   string
+	}{
+		SortBy: c.QueryParam("sort"),
+		Type:   c.QueryParam("sort_type"),
+	}
 
+	fmt.Println("SortBy", payload.SortBy)
+	fmt.Print("Type", payload.Type)
 	currentUser, _ := utils.GetAuthUser(c)
-	c.Bind(&payload)
 
 	memories := []model.Memory{}
 	switch payload.SortBy {
@@ -266,7 +270,7 @@ func GetMemorySortBy(c echo.Context) error {
 		db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags", func(db *gorm.DB) *gorm.DB {
 			db = db.Order("name ")
 			return db
-		}).Find(&memories)
+		}).Preload("Tags").Find(&memories)
 	case "last_edit":
 		switch payload.Type {
 		case "asc":
