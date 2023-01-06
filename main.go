@@ -32,14 +32,15 @@ func main() {
 	e.GET("/", handler.Home)
 	e.GET("/login", handler.Login)
 	e.GET("/register", handler.Register)
+	e.GET("/memories", handler.Memory)
 
 	authMiddleware := echojwt.WithConfig(utils.GetEchoJwtConfig())
 
-	authGroup := e.Group("/auth")
+	authGroup := e.Group("/api/auth")
 	authGroup.POST("/login", controller.Login)
 	authGroup.POST("/register", controller.SignUP)
 
-	memoryGroup := e.Group("/memories")
+	memoryGroup := e.Group("/api/memories")
 	memoryGroup.Use(authMiddleware)
 
 	memoryGroup.POST("", controller.CreateMemory)
@@ -53,7 +54,7 @@ func main() {
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 
-	pictureGroup := e.Group("/pictures")
+	pictureGroup := e.Group("/api/pictures")
 	pictureGroup.DELETE("/:id", controller.DeletePicture, authMiddleware)
 
 	if err := e.Start(":5566"); err != nil {
