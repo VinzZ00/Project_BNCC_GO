@@ -317,7 +317,11 @@ func GetMemorySortBy(c echo.Context) error {
 
 		}
 	}
-	return c.JSON(http.StatusOK, &memories)
+	var mappedResponse []MemoryResponse
+	for _, memory := range memories {
+		mappedResponse = append(mappedResponse, mapMemoryToResponse(memory))
+	}
+	return c.JSON(http.StatusOK, &mappedResponse)
 }
 
 func MemoryFilterBy(c echo.Context) error {
@@ -343,7 +347,11 @@ func MemoryFilterBy(c echo.Context) error {
 			})
 		}
 	}
-	return c.JSON(http.StatusOK, memories)
+	var mappedResponse []MemoryResponse
+	for _, memory := range memories {
+		mappedResponse = append(mappedResponse, mapMemoryToResponse(memory))
+	}
+	return c.JSON(http.StatusOK, &mappedResponse)
 }
 
 func GetTagbyTagID(tagId uint) (Tag model.Tag) {
