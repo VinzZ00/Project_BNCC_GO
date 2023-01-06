@@ -18,6 +18,41 @@ type MemoryIDParam struct {
 	ID int `param:"id" validate:"required,number"`
 }
 
+type MemoryResponse struct {
+	model.BaseModel
+	Description string   `json:"description"`
+	UserID      uint     `json:"user_id"`
+	Pictures    []string `json:"pictures"`
+	Tags        []string `json:"tags"`
+}
+
+func mapMemoryToResponse(memory model.Memory) MemoryResponse {
+	var pictureLinks []string
+	var tags []string
+
+	for _, picture := range memory.Pictures {
+		link := fmt.Sprintf("/pictures/%d", picture.ID)
+		pictureLinks = append(pictureLinks, link)
+	}
+	for _, memoryTag := range memory.MemoriesTags {
+		tagName := memoryTag.Tag.Name
+		tags = append(tags, tagName)
+	}
+
+	return MemoryResponse{
+		BaseModel: model.BaseModel{
+			ID:        memory.ID,
+			CreatedAt: memory.CreatedAt,
+			UpdatedAt: memory.UpdatedAt,
+			DeletedAt: memory.DeletedAt,
+		},
+		Description: memory.Description,
+		UserID:      memory.UserID,
+		Pictures:    pictureLinks,
+		Tags:        tags,
+	}
+}
+
 func CreateMemory(c echo.Context) error {
 	// Struct untuk ambil data web
 	payload := struct {
@@ -105,16 +140,19 @@ func GetAllMemories(c echo.Context) error {
 	memories := []model.Memory{}
 
 	currentUser, _ := utils.GetAuthUser(c)
-	fmt.Println("Issued by", currentUser.UserID)
-
-	if err := db.Where("User_ID = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Find(&memories).Error; err != nil {
+	if err := db.Where("User_ID = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Find(&memories).Error; err != nil {
 		return utils.SendResponse(c, utils.BaseResponse{
 			StatusCode: http.StatusInternalServerError,
 			Message:    err.Error(),
 		})
 	}
 
-	return c.JSON(http.StatusOK, &memories)
+	var mappedResponse []MemoryResponse
+	for _, memory := range memories {
+		mappedResponse = append(mappedResponse, mapMemoryToResponse(memory))
+	}
+
+	return c.JSON(http.StatusOK, &mappedResponse)
 }
 
 func GetAMemories(e echo.Context) error {
@@ -128,7 +166,7 @@ func GetAMemories(e echo.Context) error {
 		})
 	}
 
-	if err := db.Where("id = ?", payload.ID).Preload("Pictures").Preload("MemoriesTags").Find(&memory).Error; err != nil {
+	if err := db.Where("id = ?", payload.ID).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Find(&memory).Error; err != nil {
 		return utils.SendResponse(e, utils.BaseResponse{
 			StatusCode: http.StatusInternalServerError,
 			Message:    err.Error(),
@@ -136,8 +174,6 @@ func GetAMemories(e echo.Context) error {
 	}
 
 	currentUser, _ := utils.GetAuthUser(e)
-	fmt.Println("Issued by", currentUser.UserID)
-
 	if memory.UserID != currentUser.UserID {
 		return utils.SendResponse(e, utils.BaseResponse{
 			StatusCode: http.StatusForbidden,
@@ -145,7 +181,8 @@ func GetAMemories(e echo.Context) error {
 		})
 	}
 
-	return e.JSON(http.StatusOK, &memory)
+	mappedResponse := mapMemoryToResponse(memory)
+	return e.JSON(http.StatusOK, &mappedResponse)
 }
 
 func UpdateMemory(c echo.Context) error {
@@ -267,7 +304,9 @@ func GetMemorySortBy(c echo.Context) error {
 	switch payload.SortBy {
 	case "upload_time":
 		db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("created_at").Find(&memories)
+
 	case "tags":
+
 		db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("tag.name").Distinct().Find(&memories)
 	case "last_edit":
 		switch payload.Type {
@@ -275,9 +314,52 @@ func GetMemorySortBy(c echo.Context) error {
 			db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("updated_at asc").Find(&memories)
 		case "desc":
 			db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("updated_at desc").Find(&memories)
+
 		}
 	}
 	return c.JSON(http.StatusOK, &memories)
+}
+
+func MemoryFilterBy(c echo.Context) error {
+	currentUser, _ := utils.GetAuthUser(c)
+	filterBy := c.QueryParam("filter_type")
+	filterVal := c.QueryParam("filter")
+
+	memories := []model.Memory{}
+	switch filterBy {
+	case "tags":
+		filter := GetTagIdByName(filterVal)
+		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and memory_tag.tag_id = ?", currentUser.UserID, filter).Preload("Pictures").Preload("MemoriesTags").Order("tag.name").Distinct().Find(&memories).Error; err != nil {
+			utils.SendResponse(c, utils.BaseResponse{
+				StatusCode: http.StatusPreconditionFailed,
+				Message:    "Memory(s) by the tagName is not found",
+			})
+		}
+	case "description":
+		if err := db.Where("user_id = ? and description = ?", currentUser.UserID, filterVal).Find(&memories).Error; err != nil {
+			utils.SendResponse(c, utils.BaseResponse{
+				StatusCode: http.StatusPreconditionFailed,
+				Message:    "Memory(s) by the description is not found",
+			})
+		}
+	}
+	return c.JSON(http.StatusOK, memories)
+}
+
+func GetTagbyTagID(tagId uint) (Tag model.Tag) {
+	Tag.ID = tagId
+	if err := db.Find(&Tag).Error; err != nil {
+		fmt.Println("error")
+	}
+	return
+}
+
+func GetTagIdByName(tagName string) (TagId uint) {
+	tag := model.Tag{}
+	if err := db.Where("name = ?", tagName).Find(&tag).Error; err != nil {
+		panic(err)
+	}
+	return
 }
 
 func init() {
