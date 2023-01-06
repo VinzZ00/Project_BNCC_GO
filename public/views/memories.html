@@ -1,38 +1,26 @@
-{{define "login"}}
+{{define "memories"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGallery | Sign In</title>
+    <title>IGallery</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous" defer></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            $('#submit-btn').click((e) => {
-                e.preventDefault()
-                $.ajax({
-                    method: "POST",
-                    url: "/api/auth/login",
-                    data: JSON.stringify({
-                        email: $('#email').val(),
-                        password: $('#password').val()
-                    }),
-                    processData: false,
-                    contentType: "application/json",
-                }).done(
-                    function (obj) {
-                        window.location.href = "/"
-                    }
-                ).fail(
-                    function (data) {
-                        console.log(JSON.stringify(data))
-                        alert(JSON.stringify(data))
-                    }
-                )
+            $.ajax({
+                type: "GET",
+                url: "/api/memories",
+            }).done(function(data){
+                console.log(data)
+            }).fail(function(error){
+                if(error.statusCode === 401){
+                    window.location.href = "/login"
+                }
             })
         })
     </script>

@@ -16,7 +16,7 @@
                 e.preventDefault()
                 $.ajax({
                     method: "POST",
-                    url: "/auth/register",
+                    url: "/api/auth/register",
                     data: JSON.stringify({
                         username: $('#username').val(),
                         email : $('#email').val(),
