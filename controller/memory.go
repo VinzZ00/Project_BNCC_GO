@@ -300,12 +300,13 @@ func GetMemorySortBy(c echo.Context) error {
 
 	currentUser, _ := utils.GetAuthUser(c)
 	memories := []model.Memory{}
-
+	fmt.Println()
 	switch payload.SortBy {
 	case "upload_time":
 		db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Order("created_at").Find(&memories)
 
 	case "tags":
+		fmt.Println("masuk")
 		db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Order("tag.name").Distinct().Find(&memories)
 	case "last_edit":
 		switch payload.Type {
