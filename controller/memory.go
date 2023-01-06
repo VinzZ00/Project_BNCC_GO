@@ -355,22 +355,27 @@ func MemoryFilterBy(c echo.Context) error {
 	currentUser, _ := utils.GetAuthUser(c)
 	filterBy := c.QueryParam("filter_type")
 	filterVal := c.QueryParam("filter")
-
 	memories := []model.Memory{}
 	switch filterBy {
 	case "tags":
 		filter := GetTagIdByName(filterVal)
-		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and memory_tag.tag_id = ?", currentUser.UserID, filter).Preload("Pictures").Preload("MemoriesTags").Order("tag.name").Distinct().Find(&memories).Error; err != nil {
+		fmt.Println(filterVal)
+		fmt.Println(filterBy)
+		fmt.Println(filter)
+		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and tag.ID = ?", currentUser.UserID, filter).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Distinct().Find(&memories).Error; err != nil {
 			utils.SendResponse(c, utils.BaseResponse{
 				StatusCode: http.StatusPreconditionFailed,
-				Message:    "Memory(s) by the tagName is not found",
+				Message:    err.Error(),
 			})
 		}
+
 	case "description":
-		if err := db.Where("user_id = ? and description = ?", currentUser.UserID, filterVal).Find(&memories).Error; err != nil {
+		fmt.Println(filterVal)
+		fmt.Println(filterBy)
+		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and description = ?", currentUser.UserID, filterVal).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Find(&memories).Error; err != nil {
 			utils.SendResponse(c, utils.BaseResponse{
 				StatusCode: http.StatusPreconditionFailed,
-				Message:    "Memory(s) by the description is not found",
+				Message:    err.Error(),
 			})
 		}
 	}
@@ -394,6 +399,7 @@ func GetTagIdByName(tagName string) (TagId uint) {
 	if err := db.Where("name = ?", tagName).Find(&tag).Error; err != nil {
 		panic(err)
 	}
+	TagId = tag.ID
 	return
 }
 
