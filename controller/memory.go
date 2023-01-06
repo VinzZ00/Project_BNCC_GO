@@ -286,37 +286,64 @@ func DeleteMemory(c echo.Context) error {
 }
 
 func GetMemorySortBy(c echo.Context) error {
-
 	payload := struct {
-		SortBy string
-		Type   string
-	}{
-		SortBy: c.QueryParam("sort"),
-		Type:   c.QueryParam("sort_type"),
+		SortBy string `query:"sort" validate:"oneof='upload_time' 'tags' 'last_edit' ''"`
+		Order  string `query:"order" validate:"oneof='asc' 'desc' ''"`
+	}{}
+
+	if err := c.Bind(&payload); err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
+	}
+	if err := c.Validate(&payload); err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
 	}
 
-	fmt.Println("SortBy", payload.SortBy)
-	fmt.Println("Type", payload.Type)
+	if payload.SortBy != "" && payload.Order == "" {
+		payload.Order = "asc"
+	}
 
 	currentUser, _ := utils.GetAuthUser(c)
-	memories := []model.Memory{}
+	var memories []model.Memory
+
+	dbQuery := db.Where("user_id = ?", currentUser.UserID).
+		Preload("Pictures").
+		Preload("MemoriesTags").
+		Preload("MemoriesTags.Tag")
 
 	switch payload.SortBy {
 	case "upload_time":
-		db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("created_at").Find(&memories)
-
+		dbQuery = dbQuery.Order("created_at " + payload.Order)
 	case "tags":
-
-		db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("tag.name").Distinct().Find(&memories)
+		// dbQuery = db.Table(
+		// 	"(?) as ",
+		// 	dbQuery.Table("memory").
+		// 		Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").
+		// 		Joins("JOIN tag on tag.id = memory_tag.tag_id").
+		// 		Order("tag.name "+payload.Order),
+		// ).Distinct()
+		dbQuery = dbQuery.
+			Select("memory.*, tag.name").
+			Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").
+			Joins("JOIN tag on tag.id = memory_tag.tag_id").
+			Order("tag.name " + payload.Order).
+			Distinct()
 	case "last_edit":
-		switch payload.Type {
-		case "asc":
-			db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("updated_at asc").Find(&memories)
-		case "desc":
-			db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("updated_at desc").Find(&memories)
-
-		}
+		dbQuery = dbQuery.Order("updated_at " + payload.Order)
 	}
+
+	if err := dbQuery.Find(&memories).Error; err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
 	var mappedResponse []MemoryResponse
 	for _, memory := range memories {
 		mappedResponse = append(mappedResponse, mapMemoryToResponse(memory))

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"Project_BNCC_GO/config"
 	"Project_BNCC_GO/controller"
 	"Project_BNCC_GO/handler"
 	"Project_BNCC_GO/utils"
 	"html/template"
 	"io"
 
+	"github.com/go-playground/validator/v10"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -26,6 +28,9 @@ func main() {
 		templates: template.Must(template.ParseGlob("public/views/*.html")),
 	}
 	e.Renderer = t
+	e.Validator = &config.DefaultValidator{
+		Validator: validator.New(),
+	}
 	e.Static("/images", "public/images")
 
 	e.Use(middleware.RemoveTrailingSlash())
@@ -50,7 +55,7 @@ func main() {
 	memoryGroup.GET("/:id", controller.GetAMemories)
 
 	memoryGroup.GET("", controller.GetAllMemories)
-	// memoryGroup.GET("sort", controller.GetMemorySortBy)
+	memoryGroup.GET("/sort", controller.GetMemorySortBy)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 
