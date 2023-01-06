@@ -267,7 +267,9 @@ func GetMemorySortBy(c echo.Context) error {
 	switch payload.SortBy {
 	case "upload_time":
 		db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("created_at").Find(&memories)
+
 	case "tags":
+
 		db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("tag.name").Distinct().Find(&memories)
 	case "last_edit":
 		switch payload.Type {
@@ -275,9 +277,18 @@ func GetMemorySortBy(c echo.Context) error {
 			db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("updated_at asc").Find(&memories)
 		case "desc":
 			db.Where("user_id = ? ", currentUser.UserID).Preload("Pictures").Preload("MemoriesTags").Order("updated_at desc").Find(&memories)
+
 		}
 	}
 	return c.JSON(http.StatusOK, &memories)
+}
+
+func GetTagbyTagID(tagId uint) (tag model.Tag) {
+	tag.ID = tagId
+	if err := db.Find(&tag).Error; err != nil {
+		fmt.Println("error")
+	}
+	return
 }
 
 func init() {
