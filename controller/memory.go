@@ -283,10 +283,44 @@ func GetMemorySortBy(c echo.Context) error {
 	return c.JSON(http.StatusOK, &memories)
 }
 
-func GetTagbyTagID(tagId uint) (tag model.Tag) {
-	tag.ID = tagId
-	if err := db.Find(&tag).Error; err != nil {
+func MemoryFilterBy(c echo.Context) error {
+	currentUser, _ := utils.GetAuthUser(c)
+	filterBy := c.QueryParam("filter_type")
+	filterVal := c.QueryParam("filter")
+
+	memories := []model.Memory{}
+	switch filterBy {
+	case "tags":
+		filter := GetTagIdByName(filterVal)
+		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and memory_tag.tag_id = ?", currentUser.UserID, filter).Preload("Pictures").Preload("MemoriesTags").Order("tag.name").Distinct().Find(&memories).Error; err != nil {
+			utils.SendResponse(c, utils.BaseResponse{
+				StatusCode: http.StatusPreconditionFailed,
+				Message:    "Memory(s) by the tagName is not found",
+			})
+		}
+	case "description":
+		if err := db.Where("user_id = ? and description = ?", currentUser.UserID, filterVal).Find(&memories).Error; err != nil {
+			utils.SendResponse(c, utils.BaseResponse{
+				StatusCode: http.StatusPreconditionFailed,
+				Message:    "Memory(s) by the description is not found",
+			})
+		}
+	}
+	return c.JSON(http.StatusOK, memories)
+}
+
+func GetTagbyTagID(tagId uint) (Tag model.Tag) {
+	Tag.ID = tagId
+	if err := db.Find(&Tag).Error; err != nil {
 		fmt.Println("error")
+	}
+	return
+}
+
+func GetTagIdByName(tagName string) (TagId uint) {
+	tag := model.Tag{}
+	if err := db.Where("name = ?", tagName).Find(&tag).Error; err != nil {
+		panic(err)
 	}
 	return
 }
