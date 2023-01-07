@@ -1,6 +1,6 @@
 services:
   db:
-    image: mysql:5
+    image: mariadb:10
     restart: on-failure
     ports:
       - 3306:3306

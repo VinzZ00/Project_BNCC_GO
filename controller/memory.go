@@ -328,7 +328,6 @@ func GetMemorySortBy(c echo.Context) error {
 		// 		Order("tag.name "+payload.Order),
 		// ).Distinct()
 		dbQuery = dbQuery.
-			Select("memory.*, tag.name").
 			Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").
 			Joins("JOIN tag on tag.id = memory_tag.tag_id").
 			Order("tag.name " + payload.Order).
