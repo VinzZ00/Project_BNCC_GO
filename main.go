@@ -38,6 +38,7 @@ func main() {
 	e.GET("/login", handler.Login)
 	e.GET("/register", handler.Register)
 	e.GET("/memories", handler.Memory)
+	e.GET("/add-memory", handler.AddMemory)
 
 	authMiddleware := echojwt.WithConfig(utils.GetEchoJwtConfig())
 
