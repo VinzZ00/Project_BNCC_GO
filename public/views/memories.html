@@ -19,20 +19,37 @@
             }).done(function(data){
                 console.log(data)
                 if(data.length > 0){
-                    $('#gallery').html(data.reduce((html, memory) => (
+                    $('#gallery').html(data.reduce((html, memory) => {
+                        const pictures = []
+                        memory.pictures.slice(0,4).forEach(picture => {
+                            $.ajax({
+                                type: "GET",
+                                url : '/api'+picture,
+                                async : false
+                            }).done(function(image){
+                                pictures.push(image)
+                            }).fail(function(error){
+                                console.log(error)
+                                alert(JSON.stringify(error))
+                            })
+                        })
                         html += 
                         `<a href="/memory/${memory.id}">
-                            <div class="card shadow-sm">
-                                <div class="d-flex flex-wrap">
-                                    ${memory.pictures.slice(0,4).map(async(picture) => {
-                                        const url = await fetch(`/api${picture}`)
-                                        return `<img src="${url}" class="flex-grow-1 w-50"/>`
-                                    })}
+                            <div class="card shadow-sm" style="width: 18rem;">
+                                <div class="card-body">
+                                    <div class="d-flex flex-wrap position-relative">
+                                        ${pictures.slice(0,4).map((picture) => {
+                                            return `<img src="${picture}" class="flex-grow-1 w-50"/>`
+                                        })}
+                                        ${pictures.length > 4 ? `<div class='badge bg-dark position-absolute bottom-0 end-0'>+${pictures.length - 4}</div>` : ""}
+                                    </div>
+                                    ${memory.description}
                                 </div>
-                                ${memory.description}
                             </div>
                         </a>`
-                    ), ""))
+                        console.log(html)
+                        return html
+                    }, ""))
                 }
             }).fail(function(error){
                 if(error.status === 401){
