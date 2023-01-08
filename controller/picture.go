@@ -3,8 +3,8 @@ package controller
 import (
 	"Project_BNCC_GO/model"
 	"Project_BNCC_GO/utils"
-	"fmt"
 	"net/http"
+	"fmt"
 
 	"github.com/labstack/echo/v4"
 )
@@ -32,7 +32,7 @@ func ReadPicture(c echo.Context) error {
 
 	return c.HTML(
 		http.StatusOK,
-		fmt.Sprintf("<img src=\"data:image/png;base64,%s\" alt=\"Blank\" style=\"width: 100%%\"/>", picture.Data),
+		fmt.Sprintf("data:image/png;base64,%s", picture.Data),
 	)
 }
 

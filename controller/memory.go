@@ -26,6 +26,61 @@ type MemoryResponse struct {
 	Tags        []string `json:"tags"`
 }
 
+func AddPicture(c echo.Context) error {
+	payload := struct {
+		ID   int    `param:"id" validate:"required,number"`
+		Data string `json:"base64Data" validate:"required"`
+	}{}
+
+	if err := c.Bind(&payload); err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
+	}
+
+	picture := model.Picture{
+		Data:     payload.Data,
+		MemoryID: uint(payload.ID),
+	}
+	CheckUser := model.Memory{}
+	if err := db.Where("ID = ?", picture.MemoryID).First(&CheckUser).Error; err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+	curr_user, err := utils.GetAuthUser(c)
+	if err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusNetworkAuthenticationRequired,
+			Message:    err.Error(),
+		})
+	}
+
+	if CheckUser.UserID != curr_user.UserID {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusUnauthorized,
+			Message:    err.Error(),
+		})
+	}
+
+	if err := db.Create(&picture).Error; err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, struct {
+		Status  int
+		Message string
+	}{
+		Status:  http.StatusOK,
+		Message: fmt.Sprintf("Picture with ID %d has been successfully added", picture.ID),
+	})
+}
+
 func mapMemoryToResponse(memory model.Memory) MemoryResponse {
 	var pictureLinks []string
 	var tags []string
@@ -328,7 +383,6 @@ func GetMemorySortBy(c echo.Context) error {
 		// 		Order("tag.name "+payload.Order),
 		// ).Distinct()
 		dbQuery = dbQuery.
-			Select("memory.*, tag.name").
 			Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").
 			Joins("JOIN tag on tag.id = memory_tag.tag_id").
 			Order("tag.name " + payload.Order).

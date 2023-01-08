@@ -119,6 +119,23 @@ func SignUP(c echo.Context) error {
 	})
 }
 
+func Logout(c echo.Context) error {
+	cookie := http.Cookie{
+		Name:     "Token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   0,
+	}
+
+	c.SetCookie(&cookie)
+
+	return utils.SendResponse(c, utils.BaseResponse{
+		StatusCode: http.StatusOK,
+		Message:    "Successfully logged out",
+	})
+}
+
 func init() {
 	if database, err := model.GetDB(); err == nil {
 		db = database

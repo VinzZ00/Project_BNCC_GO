@@ -39,15 +39,16 @@ func main() {
 	e.GET("/", handler.Home)
 	e.GET("/login", handler.Login)
 	e.GET("/register", handler.Register)
-	e.GET("/memories", handler.Memory)
-	e.GET("/memories/create", handler.AddMemory)
-	e.GET("/memories/:id", handler.MemoryDetail)
+	e.GET("/memory", handler.Memory)
+	e.GET("/add-memory", handler.AddMemory)
+	e.GET("/memory-detail", handler.MemoryDetail)
 
 	authMiddleware := echojwt.WithConfig(utils.GetEchoJwtConfig())
 
 	authGroup := e.Group("/api/auth")
 	authGroup.POST("/login", controller.Login)
 	authGroup.POST("/register", controller.SignUP)
+	authGroup.DELETE("/logout", controller.Logout)
 
 	memoryGroup := e.Group("/api/memories")
 	memoryGroup.Use(authMiddleware)
@@ -61,10 +62,13 @@ func main() {
 	memoryGroup.GET("", controller.GetAllMemories)
 	memoryGroup.GET("/filter", controller.MemoryFilterBy)
 	memoryGroup.GET("/sort", controller.GetMemorySortBy)
+	memoryGroup.POST("/:id", controller.AddPicture)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 
 	pictureGroup := e.Group("/api/pictures")
+	pictureGroup.Use(authMiddleware)
+	pictureGroup.GET("/:id", controller.ReadPicture)
 	pictureGroup.DELETE("/:id", controller.DeletePicture, authMiddleware)
 
 	if err := e.Start(":5566"); err != nil {
