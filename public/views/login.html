@@ -25,12 +25,12 @@
                     contentType: "application/json",
                 }).done(
                     function (obj) {
-                        window.location.href = "/memories"
+                        window.location.href = "/memory"
                     }
                 ).fail(
-                    function (data) {
-                        console.log(JSON.stringify(data))
-                        alert(JSON.stringify(data))
+                    function (error) {
+                        console.log(error)
+                        alert(JSON.stringify(error))
                     }
                 )
             })
