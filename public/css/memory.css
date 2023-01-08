@@ -1,0 +1,24 @@
+input[type="file"] {
+    opacity: 0;
+    width: 95%;
+}
+
+input[type="file"] + label {
+    border: 1px solid #ced4da;
+    color: #6c757d;
+    padding: 0.4rem 0.7rem;
+}
+
+#images-container img {
+    height: auto;
+}
+
+.col-md-4 img,
+.col-md-3 img {
+    height: 172px;
+    width: 172px;
+}
+
+.memory-btns-container {
+    bottom: 22%;
+}

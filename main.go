@@ -32,13 +32,16 @@ func main() {
 		Validator: validator.New(),
 	}
 	e.Static("/images", "public/images")
+	e.Static("/css", "public/css")
+	e.Static("/js", "public/js")
 
 	e.Use(middleware.RemoveTrailingSlash())
 	e.GET("/", handler.Home)
 	e.GET("/login", handler.Login)
 	e.GET("/register", handler.Register)
 	e.GET("/memories", handler.Memory)
-	e.GET("/add-memory", handler.AddMemory)
+	e.GET("/memories/create", handler.AddMemory)
+	e.GET("/memories/:id", handler.MemoryDetail)
 
 	authMiddleware := echojwt.WithConfig(utils.GetEchoJwtConfig())
 

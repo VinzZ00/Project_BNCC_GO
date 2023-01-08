@@ -28,3 +28,8 @@ func Memory(c echo.Context) error {
 func AddMemory(c echo.Context) error {
 	return c.Render(http.StatusOK, "add-memory", nil)
 }
+
+func MemoryDetail(c echo.Context) error {
+	id := c.Param("id")
+	return c.Render(http.StatusOK, "memory-detail", id)
+}
