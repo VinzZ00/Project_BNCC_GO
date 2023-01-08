@@ -62,6 +62,7 @@ func main() {
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 
 	pictureGroup := e.Group("/api/pictures")
+	pictureGroup.POST("", controller.AddPicture)
 	pictureGroup.GET("/:id", controller.ReadPicture)
 	pictureGroup.DELETE("/:id", controller.DeletePicture, authMiddleware)
 
