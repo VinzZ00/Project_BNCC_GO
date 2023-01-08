@@ -3,7 +3,7 @@ package controller
 import (
 	"Project_BNCC_GO/model"
 	"Project_BNCC_GO/utils"
-	"fmt"
+	"encoding/base64"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -64,10 +64,16 @@ func ReadPicture(c echo.Context) error {
 		})
 	}
 
-	return c.HTML(
-		http.StatusOK,
-		fmt.Sprintf("<img src=\"data:image/png;base64,%s\" alt=\"Blank\" style=\"width: 100%%\"/>", picture.Data),
-	)
+	decodedImage, err := base64.StdEncoding.DecodeString(picture.Data)
+	if err != nil {
+		return utils.SendResponse(c, utils.BaseResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
+	}
+
+	contentType := http.DetectContentType(decodedImage)
+	return c.Blob(http.StatusOK, contentType, decodedImage)
 }
 
 func DeletePicture(c echo.Context) error {
