@@ -45,6 +45,7 @@ func main() {
 	authGroup := e.Group("/api/auth")
 	authGroup.POST("/login", controller.Login)
 	authGroup.POST("/register", controller.SignUP)
+	authGroup.DELETE("/logout", controller.Logout)
 
 	memoryGroup := e.Group("/api/memories")
 	memoryGroup.Use(authMiddleware)
