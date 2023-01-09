@@ -30,7 +30,7 @@ const resizeImage = (input, container, images) => {
             finalImage.className = "img-fluid rounded mb-3";
 
             container.append(
-                $("<div class='w-100 col-md-4'></div>").append(finalImage)
+                $("<div class='col-md-4'></div>").append(finalImage)
             );
         });
 
@@ -88,9 +88,9 @@ $(document).ready(() => {
                 alert("Memory successfully created!");
                 window.location.href = "/memories";
             })
-            .fail((data) => {
-                console.log(data);
-                alert(data);
+            .fail((error) => {
+                console.log(error);
+                alert(error);
             });
     });
 });

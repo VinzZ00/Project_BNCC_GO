@@ -13,47 +13,71 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
         integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        #images-container img {
-            height: auto;
-        }
-
-        .col-md-3 img {
-            height: 172px;
-            width: 172px;
-        }
-
-        .memory-btns-container {
-            bottom: 18%;
-        }
-
-        .edit-btn,
-        .delete-btn {
-            opacity: 0%;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/memory.css">
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="../js/memory-detail.js"></script>
     <script type="text/javascript">
         $(document).ready(() => {
-            const editBtn = $("#edit-mode-btn");
-            const saveBtn = $("#save-changes-btn");
+            $.ajax({
+                type: "GET",
+                url: "/api/memories/{{.}}",
+            })
+                .done((data) => {
+                    data.pictures.forEach((picture) => {
+                        $.ajax({
+                            type: "GET",
+                            url: "/api" + picture,
+                            async: false,
+                        })
+                            .done((image) => {
+                                const newPicture = new Image();
+                                const finalPicture = new Image();
+                                const container = $("#images-container > .row")
+                                const canvas = document.createElement("canvas");
 
-            editBtn.click(() => {
-                $(".edit-btn").css("opacity", "100%");
-                $(".delete-btn").css("opacity", "100%");
-                $("#edit-mode-btn").addClass("d-none");
-                $("#save-changes-btn").removeClass("d-none");
-                $("#back-btn").addClass("d-none");
-            });
+                                newPicture.addEventListener("load", () => {
+                                    const width = newPicture.naturalWidth;
+                                    const height = newPicture.naturalHeight;
+                                    const aspectRatio = width / height;
 
-            saveBtn.click(() => {
-                $(".edit-btn").css("opacity", "0%");
-                $(".delete-btn").css("opacity", "0%");
-                $("#edit-mode-btn").removeClass("d-none");
-                $("#save-changes-btn").addClass("d-none");
-                $("#back-btn").removeClass("d-none");
-            });
+                                    let newWidth = width,
+                                        newHeight = height;
+
+                                    if (aspectRatio > 1) {
+                                        newWidth = height;
+                                    } else if (aspectRatio < 1) {
+                                        newHeight = width;
+                                    }
+
+                                    canvas.width = newWidth;
+                                    canvas.height = newHeight;
+                                    canvas.getContext("2d").drawImage(newPicture, 0, 0);
+
+                                    finalPicture.src = canvas.toDataURL();
+                                    finalPicture.className = "w-100 img-fluid rounded";
+
+                                    container.append(
+                                        $("<div class='col-lg-3 col-md-4'></div>")
+                                            .append(finalPicture)
+                                            .append(
+                                                "<div class='memory-btns-container d-flex justify-content-evenly position-relative'><button type='button' class='d-absolute btn btn-warning px-4 fw-bold'>Edit <i class='fa-regular fa-pen-to-square'></i></button><button type='button' class='d-absolute btn btn-danger px-3 fw-bold'>Delete <i class='fa-regular fa-trash-can'></i></button></div>"
+                                            )
+                                    );
+                                });
+
+                                newPicture.src = image;
+                            })
+                            .fail((error) => {
+                                console.log(error);
+                                alert(error);
+                            });
+                    });
+                })
+                .fail((error) => {
+                    console.log(error);
+                    alert(error);
+                });
         });
     </script>
 </head>
@@ -61,7 +85,7 @@
 <body>
     <nav class="navbar navbar-expand-sm navbar-light bg-white shadow py-3">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/">
                 <img src="/images/nav-logo.png" class="img-fluid" alt="Logo Navbar">
             </a>
             <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
@@ -73,7 +97,11 @@
                 <ul class="navbar-nav me-auto mt-2 mt-lg-0">
 
                 </ul>
-                <a href="/login" class="btn btn-outline-primary">Sign In</a>
+                <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                    <a href="/memories" class="nav-link active">Gallery</a>
+                    <a href="/memories/add" class="nav-link">Create Memory</a>
+                    <a href="#logout" class="btn btn-outline-primary ms-3">Logout</a>
+                </ul>
             </div>
         </div>
     </nav>
@@ -94,63 +122,7 @@
                 </div>
             </div>
             <div id="images-container">
-                <div class="row">
-                    <div class="col-lg-3 col-md-4">
-                        <img src="https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3"
-                            alt="" class="w-100 img-fluid rounded">
-
-                        <div class="memory-btns-container d-flex justify-content-evenly position-relative">
-                            <button type="button" class="edit-btn d-absolute btn btn-warning px-4 fw-bold">Edit <i
-                                    class="fa-regular fa-pen-to-square"></i></button>
-                            <button type="button" class="delete-btn d-absolute btn btn-danger px-3 fw-bold">Delete <i
-                                    class="fa-regular fa-trash-can"></i></button>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-4">
-                        <img src="https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3"
-                            alt="" class="w-100 img-fluid rounded">
-
-                        <div class="memory-btns-container d-flex justify-content-evenly position-relative">
-                            <button type="button" class="edit-btn d-absolute btn btn-warning px-4 fw-bold">Edit <i
-                                    class="fa-regular fa-pen-to-square"></i></button>
-                            <button type="button" class="delete-btn d-absolute btn btn-danger px-3 fw-bold">Delete <i
-                                    class="fa-regular fa-trash-can"></i></button>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-4">
-                        <img src="https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3"
-                            alt="" class="w-100 img-fluid rounded">
-
-                        <div class="memory-btns-container d-flex justify-content-evenly position-relative">
-                            <button type="button" class="edit-btn btn btn-warning px-4 fw-bold">Edit <i
-                                    class="fa-regular fa-pen-to-square"></i></button>
-                            <button type="button" class="delete-btn btn btn-danger px-3 fw-bold">Delete <i
-                                    class="fa-regular fa-trash-can"></i></button>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-4">
-                        <img src="https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3"
-                            alt="" class="w-100 img-fluid rounded">
-
-                        <div class="memory-btns-container d-flex justify-content-evenly position-relative">
-                            <button type="button" class="edit-btn btn btn-warning px-4 fw-bold">Edit <i
-                                    class="fa-regular fa-pen-to-square"></i></button>
-                            <button type="button" class="delete-btn btn btn-danger px-3 fw-bold">Delete <i
-                                    class="fa-regular fa-trash-can"></i></button>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-4">
-                        <img src="https://play-lh.googleusercontent.com/IeNJWoKYx1waOhfWF6TiuSiWBLfqLb18lmZYXSgsH1fvb8v1IYiZr5aYWe0Gxu-pVZX3"
-                            alt="" class="w-100 img-fluid rounded">
-
-                        <div class="memory-btns-container d-flex justify-content-evenly position-relative">
-                            <button type="button" class="edit-btn btn btn-warning px-4 fw-bold">Edit <i
-                                    class="fa-regular fa-pen-to-square"></i></button>
-                            <button type="button" class="delete-btn btn btn-danger px-3 fw-bold">Delete <i
-                                    class="fa-regular fa-trash-can"></i></button>
-                        </div>
-                    </div>
-                </div>
+                <div class="row"></div>
             </div>
         </div>
     </main>

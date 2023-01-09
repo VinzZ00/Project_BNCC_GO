@@ -39,9 +39,9 @@ func main() {
 	e.GET("/", handler.Home)
 	e.GET("/login", handler.Login)
 	e.GET("/register", handler.Register)
-	e.GET("/memory", handler.Memory)
-	e.GET("/add-memory", handler.AddMemory)
-	e.GET("/memory-detail", handler.MemoryDetail)
+	e.GET("/memories", handler.Memory)
+	e.GET("/memories/add", handler.AddMemory)
+	e.GET("/memories/:id", handler.MemoryDetail)
 
 	authMiddleware := echojwt.WithConfig(utils.GetEchoJwtConfig())
 

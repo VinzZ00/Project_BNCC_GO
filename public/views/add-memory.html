@@ -21,7 +21,7 @@
 <body>
     <nav class="navbar navbar-expand-sm navbar-light bg-white shadow py-3">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/">
                 <img src="/images/nav-logo.png" class="img-fluid" alt="Logo Navbar">
             </a>
             <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
@@ -33,7 +33,11 @@
                 <ul class="navbar-nav me-auto mt-2 mt-lg-0">
 
                 </ul>
-                <a href="/login" class="btn btn-outline-primary">Sign In</a>
+                <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                    <a href="/memories" class="nav-link active">Gallery</a>
+                    <a href="/memories/add" class="nav-link">Create Memory</a>
+                    <a href="#logout" class="btn btn-outline-primary ms-3">Logout</a>
+                </ul>
             </div>
         </div>
     </nav>
@@ -57,7 +61,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="memory-images" class="form-label">Image(s)</label>
-                                    <input type="file" class="form-control custom-file-input opacity-0" accept="image/*"
+                                    <input type="file" class="form-control custom-file-input d-none" accept="image/*"
                                         id="memory-images" name="memory-images" multiple>
                                     <label for="memory-images" class="w-100 rounded">Upload
                                         image
