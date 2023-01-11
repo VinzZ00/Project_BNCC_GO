@@ -21,6 +21,7 @@
                 type: "GET",
                 url: "/api/memories",
             }).done(function (data) {
+                if(data.length === 0) return;
                 updateUI(data)
             }).fail(function (error) {
                 if (error.status === 401) {
@@ -42,7 +43,6 @@
         })
 
         function updateUI(data){
-            if(data.length === 0) return;
             $('#gallery').html(data.reduce((html, memory) => {
                 const pictures = []
                 memory.pictures.slice(0, 4).forEach(picture => {
@@ -88,6 +88,7 @@
             type: "GET",
             url: `/api/memories/sort?sort=${sortType}&order=${order}`,
             }).done(function (data) {
+                if(data.length === 0) return;
                 updateUI(data)
             }).fail(function (error) {
                 if (error.status === 401) {
