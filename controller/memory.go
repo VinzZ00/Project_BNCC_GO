@@ -407,32 +407,45 @@ func GetMemorySortBy(c echo.Context) error {
 
 func MemoryFilterBy(c echo.Context) error {
 	currentUser, _ := utils.GetAuthUser(c)
-	filterBy := c.QueryParam("filter_type")
-	filterVal := c.QueryParam("filter")
+	Ftag := c.QueryParam("tag")
+	Fdesc := c.QueryParam("description")
 	memories := []model.Memory{}
-	switch filterBy {
-	case "tags":
-		filter := GetTagIdByName(filterVal)
-		fmt.Println(filterVal)
-		fmt.Println(filterBy)
-		fmt.Println(filter)
-		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and tag.ID = ?", currentUser.UserID, filter).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Distinct().Find(&memories).Error; err != nil {
-			utils.SendResponse(c, utils.BaseResponse{
-				StatusCode: http.StatusPreconditionFailed,
-				Message:    err.Error(),
-			})
-		}
 
-	case "description":
-		fmt.Println(filterVal)
-		fmt.Println(filterBy)
+	if Ftag == "" && Fdesc == "" {
+		GetAllMemories(c)
+	} else if Ftag == "" {
+		fmt.Println("Fdesc is ", Fdesc)
+		fmt.Println("Ftags is ", Ftag)
 		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and description = ?", currentUser.UserID, filterVal).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Find(&memories).Error; err != nil {
 			utils.SendResponse(c, utils.BaseResponse{
 				StatusCode: http.StatusPreconditionFailed,
 				Message:    err.Error(),
 			})
 		}
+	} else if Fdesc == "" {
+		filter := GetTagIdByName(Ftag)
+		fmt.Println("Fdesc is ", Fdesc)
+		fmt.Println("Ftags is ", Ftag)
+		fmt.Println("The tag id is ", filter)
+		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and tag.ID = ?", currentUser.UserID, filter).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Distinct().Find(&memories).Error; err != nil {
+			utils.SendResponse(c, utils.BaseResponse{
+				StatusCode: http.StatusPreconditionFailed,
+				Message:    err.Error(),
+			})
+		}
+	} else {
+		filter := GetTagIdByName(Ftag)
+		fmt.Println("Fdesc is ", Fdesc)
+		fmt.Println("Ftags is ", Ftag)
+		fmt.Println("The tag id is ", filter)
+		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and tag.ID = ? and description = ?", currentUser.UserID, filter, Fdesc).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Distinct().Find(&memories).Error; err != nil {
+			utils.SendResponse(c, utils.BaseResponse{
+				StatusCode: http.StatusPreconditionFailed,
+				Message:    err.Error(),
+			})
+		}
 	}
+
 	var mappedResponse []MemoryResponse
 	for _, memory := range memories {
 		mappedResponse = append(mappedResponse, mapMemoryToResponse(memory))
