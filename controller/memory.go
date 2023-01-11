@@ -416,7 +416,7 @@ func MemoryFilterBy(c echo.Context) error {
 	} else if Ftag == "" {
 		fmt.Println("Fdesc is ", Fdesc)
 		fmt.Println("Ftags is ", Ftag)
-		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and description = ?", currentUser.UserID, filterVal).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Find(&memories).Error; err != nil {
+		if err := db.Joins("JOIN memory_tag on memory.id = memory_tag.memory_id").Joins("JOIN tag on tag.id = memory_tag.tag_id").Where("user_id = ? and description = ?", currentUser.UserID, Fdesc).Preload("Pictures").Preload("MemoriesTags").Preload("MemoriesTags.Tag").Find(&memories).Error; err != nil {
 			utils.SendResponse(c, utils.BaseResponse{
 				StatusCode: http.StatusPreconditionFailed,
 				Message:    err.Error(),
