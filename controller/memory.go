@@ -461,6 +461,14 @@ func GetTagbyTagID(tagId uint) (Tag model.Tag) {
 	return
 }
 
+func GetAllTags(c echo.Context) error {
+	tags := model.Tag{}
+
+	db.Find(&tags)
+
+	return c.JSON(http.StatusOK, &tags)
+}
+
 func GetTagIdByName(tagName string) (TagId uint) {
 	tag := model.Tag{}
 	if err := db.Where("name = ?", tagName).Find(&tag).Error; err != nil {
