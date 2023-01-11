@@ -79,7 +79,7 @@ $(document).ready(() => {
             data: JSON.stringify({
                 description: $("#memory-name").val(),
                 pictures: images,
-                tags: $("#memory-tags").val().split(","),
+                tags: $("#memory-tags").val().split(",").map(tag => tag.trim()),
             }),
             processData: false,
             contentType: "application/json",
