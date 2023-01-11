@@ -26,3 +26,7 @@ input[type="file"] + label {
 .memory-btns-container button {
     opacity: 0%;
 }
+
+.memory-tag-wrapper {
+    background-color: #eeeeee !important;
+}

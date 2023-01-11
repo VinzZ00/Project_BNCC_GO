@@ -3,7 +3,6 @@ const resizeImage = (input, container, images) => {
 
     for (let image of uploadedImages) {
         const newImage = new Image();
-        const reader = new FileReader();
 
         newImage.addEventListener("load", () => {
             const width = newImage.naturalWidth;
@@ -34,14 +33,7 @@ const resizeImage = (input, container, images) => {
             );
         });
 
-        reader.addEventListener("load", () => {
-            images.push(
-                reader.result.replace(/^data:image\/[a-z]+;base64,/, "")
-            );
-        });
-
         newImage.src = URL.createObjectURL(image);
-        reader.readAsDataURL(image);
     }
 };
 
@@ -79,7 +71,10 @@ $(document).ready(() => {
             data: JSON.stringify({
                 description: $("#memory-name").val(),
                 pictures: images,
-                tags: $("#memory-tags").val().split(",").map(tag => tag.trim()),
+                tags: $("#memory-tags")
+                    .val()
+                    .split(",")
+                    .map((tag) => tag.trim()),
             }),
             processData: false,
             contentType: "application/json",
