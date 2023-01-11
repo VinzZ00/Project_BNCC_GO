@@ -69,14 +69,15 @@
                                 newPicture.src = image;
                             })
                             .fail((error) => {
-                                console.log(error);
-                                alert(error);
+                                console.log(JSON.stringify(error));
+                                alert(JSON.stringify(error));
                             });
                     });
                 })
                 .fail((error) => {
-                    console.log(error);
-                    alert(error);
+                    if(error.status === 400) window.location.href = "/memories"
+                    console.log(JSON.stringify(error));
+                    alert(JSON.stringify(error));
                 });
         });
     </script>

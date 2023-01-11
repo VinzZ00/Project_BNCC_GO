@@ -63,6 +63,7 @@ func main() {
 	memoryGroup.GET("/filter", controller.MemoryFilterBy)
 	memoryGroup.GET("/sort", controller.GetMemorySortBy)
 	memoryGroup.POST("/:id", controller.AddPicture)
+	memoryGroup.GET("/tags", controller.GetAllTags)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 	// memoryGroup.GET("sort", controller.GetMemorySortBy)
 
