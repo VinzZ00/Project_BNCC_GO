@@ -22,11 +22,21 @@
     <script src="../js/memory-detail.js"></script>
     <script type="text/javascript">
         $(document).ready(() => {
-            $("#delete-memory-btn").click(
+            $("#delete-memory-btn").click(() => {
                 $.ajax({
                     type: "DELETE",
                     url: "/api/memories/{{.}}",
                 })
+                    .done((data) => {
+                        console.log(data);
+                        alert(data.message);
+                        window.location.href = "/memories";
+                    })
+                    .fail((error) => {
+                        console.log(error);
+                        alert(error.responseJSON.message);
+                    })
+            }
             );
 
             $.ajax({
@@ -94,8 +104,8 @@
                 })
                 .fail((error) => {
                     if (error.status === 400) window.location.href = "/memories"
-                    console.log(JSON.stringify(error));
-                    alert(JSON.stringify(error));
+                    console.log(error);
+                    alert(error.responseJSON.message);
                 });
         });
     </script>
@@ -133,7 +143,7 @@
                 </div>
                 <div class="modal-body">Are you sure you want to delete this memory?</div>
                 <div class="modal-footer">
-                    <button type="button" id="delete-memory-btn" class="btn btn-light border-primary text-primary"
+                    <button type="button" class="btn btn-light border-primary text-primary"
                         data-bs-dismiss="modal">Cancel</button>
                     <button type="button" id="delete-memory-btn" class="btn btn-danger">Delete</button>
                 </div>
