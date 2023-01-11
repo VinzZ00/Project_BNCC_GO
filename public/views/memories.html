@@ -15,7 +15,6 @@
         defer></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <script src="/js/script.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $.ajax({
@@ -25,6 +24,18 @@
                 updateUI(data)
             }).fail(function (error) {
                 if (error.status === 401) {
+                    window.location.href = "/login"
+                }
+            })
+            $.ajax({
+                type: "GET",
+                url: "/api/memories/tags"
+            }).done(function(data){
+                data.forEach(tag => {
+                    $('#filter').append(`<option value="${tag.name}">${tag.name}</option>`)
+                })
+            }).fail(function (error){
+                if(error.status === 401){
                     window.location.href = "/login"
                 }
             })
@@ -84,6 +95,21 @@
                 }
             })
         }
+
+        function filter(){
+            const description = $('#search').val()
+            const tag = $('#filter').val()
+            $.ajax({
+            type: "GET",
+            url: `/api/memories/filter?description=${description}&tag=${tag}`,
+            }).done(function (data) {
+                updateUI(data)
+            }).fail(function (error) {
+                if (error.status === 401) {
+                    window.location.href = "/login"
+                }
+            })
+        }
     </script>
 </head>
 
@@ -116,7 +142,7 @@
                 <div class="col-md-6 col-lg-8">
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="Search memories" id="search">
-                        <button class="btn btn-outline-secondary" type="button" id="">Search</button>
+                        <button class="btn btn-outline-secondary" type="button" onclick="filter()">Search</button>
                     </div>
                 </div>
                 <div class="col-md-3 col-lg-2 mb-3">
@@ -134,7 +160,7 @@
                     </ul>
                 </div>
                 <div class="col-md-3 col-lg-2 mb-3">
-                    <select class="form-select" id="filter">
+                    <select class="form-select" id="filter" onchange="filter()">
                         <option value="" selected>All</option>
                     </select>
                 </div>
